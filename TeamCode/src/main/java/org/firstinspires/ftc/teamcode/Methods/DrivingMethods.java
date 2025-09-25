@@ -29,6 +29,8 @@ public class DrivingMethods {
 
     private double motorSpeed;
 
+
+
     public void init(HardwareMap hardwareMap) {
 
         // Inits all four motors, allowing us to use them later in the code
@@ -69,17 +71,10 @@ public class DrivingMethods {
         bL.setPower(Motor3);
     }
 
-    public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, Telemetry telemetry, double runTime) {
+    public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, Telemetry telemetry) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), rx (right_stick_x), and IMUReset (options button)
 
-        //TODO:Motor Speed implemented soon
-        double motorSpeed = 1;
-
-        // If the option button (IMUReset) is pressed, this will reset the IMU yaw angle
-        if (IMUReset) {
-            imu.resetYaw();
-            telemetry.addLine("Imu reset at" + runTime);
-        }
+        motorSpeed = (0.1 + 0.9 * speed);
 
         // Sets the botHeading to the IMU yaw angle in radians
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -89,21 +84,23 @@ public class DrivingMethods {
         // TODO: explain this math
         double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading);
         double rotY = lx * Math.sin(botHeading) + ly * Math.cos(botHeading);
+
+        /*
         telemetry.addData("lx",lx);
         telemetry.addData("ly",ly);
         telemetry.addData("rotX",rotX);
         telemetry.addData("rotY",rotY);
-        telemetry.addData("rot",-botHeading);
+        telemetry.addData("rot",-botHeading); */
 
 
 
         // Dominator is basically making sure the Motor values are all moving proportionally and not exceeding 1
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
 
-        double power0 = (rotY + rx - rotX) / denominator * (1 - 0.9 * speed);
-        double power1 = (-rotY + rx - rotX) / denominator * (1 - 0.9 * speed);
-        double power2 = (-rotY + rx + rotX) / denominator * (1 - 0.9 * speed);
-        double power3 = (rotY + rx + rotX) / denominator * (1 - 0.9 * speed);
+        double power0 = (rotY + rx - rotX) / denominator * motorSpeed;
+        double power1 = (-rotY + rx - rotX) / denominator * motorSpeed;
+        double power2 = (-rotY + rx + rotX) / denominator * motorSpeed;
+        double power3 = (rotY + rx + rotX) / denominator * motorSpeed;
 
         // Uses these power varibles to call the setPower method which will set the power of each motor
         setPower(power0, power1, power2, power3);
@@ -112,9 +109,8 @@ public class DrivingMethods {
     public void RobotCentric(double lx,double ly, double rx, double speed) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), and rx (right_stick_x)
 
-
-        // Sets the Motor Speed to 1, because we need to be speedy
-        motorSpeed = (1 - 0.9 * speed);
+        //Speed is passed in as a range from 0-1. We want it to have a minimum speed of 0.1, so we account for it here.
+        motorSpeed = (0.1 + 0.9 * speed);
 
         // Uses math to decide the power of each motor in order to make it drive in any direction that is passed in by the lx, ly, and rx varibles
         powerFL = motorSpeed * (ly + rx - lx);

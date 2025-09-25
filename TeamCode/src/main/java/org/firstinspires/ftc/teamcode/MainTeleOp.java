@@ -11,8 +11,15 @@ import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 @TeleOp
 
 public class MainTeleOp extends OpMode {
-    boolean IMUReset;
+
     DrivingMethods Drive = new DrivingMethods();
+
+    double ctrlLX;
+    double ctrlLY;
+    double ctrlRX;
+    double ctrlRTrig;
+    boolean ctrlHome;
+
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -22,23 +29,24 @@ public class MainTeleOp extends OpMode {
     }
 
     public void loop() {
+        controlVars();
         fieldCentricDrive();
 
     }
 
+    public void controlVars() {
+        ctrlLX = gamepad1.left_stick_x * 1.1; //Robot move Y
+        ctrlLY = gamepad1.left_stick_y; //Robot move Y
+        ctrlRX = gamepad1.right_stick_x; //Robot rotation
+        ctrlRTrig = gamepad1.right_trigger; //Robot speed
+        ctrlHome = gamepad1.options; //IMU reset for field centric
+    }
+
     public void fieldCentricDrive() {
-        IMUReset = gamepad1.options;
-        double lx = gamepad1.left_stick_x * 1.1;
-        double ly = gamepad1.left_stick_y;
-        double rx = -gamepad1.right_stick_x;
-        Drive.FieldCentric(lx, ly, rx, gamepad1.right_trigger, IMUReset, telemetry, getRuntime());
+        Drive.FieldCentric(ctrlLX * 1.1, ctrlLY, -ctrlRX, 1-ctrlRTrig, ctrlHome, telemetry);
     }
 
     public void robotCentricDrive() {
-        double lx = gamepad1.left_stick_x * 1.1;
-        double ly = gamepad1.left_stick_y;
-        double rx = -gamepad1.right_stick_x;
-
-        Drive.RobotCentric(lx, ly, rx, gamepad1.right_trigger);
+        Drive.RobotCentric(ctrlLX * 1.1, ctrlLY, -ctrlRX, 1-ctrlRTrig);
     }
 }
