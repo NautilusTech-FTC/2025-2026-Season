@@ -71,7 +71,7 @@ public class DrivingMethods {
         bL.setPower(Motor3);
     }
 
-    public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, Telemetry telemetry) {
+    public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, double strafeFix, Telemetry telemetry) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), rx (right_stick_x), and IMUReset (options button)
 
         motorSpeed = (0.1 + 0.9 * speed);
@@ -86,7 +86,7 @@ public class DrivingMethods {
         telemetry.addLine(String.valueOf(botHeading));
 
         // TODO: explain this math
-        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * 1.1;
+        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * strafeFix;
         double rotY = lx * Math.sin(botHeading) + ly * Math.cos(botHeading);
 
         /*

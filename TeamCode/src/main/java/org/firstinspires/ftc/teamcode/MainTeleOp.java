@@ -23,7 +23,9 @@ public class MainTeleOp extends OpMode {
     boolean ctrlHome;
     boolean ctrlIntake;
 
-    double strafeFix;
+
+    //Config variables:
+    double strafeFix = 1.1;
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
@@ -32,11 +34,6 @@ public class MainTeleOp extends OpMode {
         //initialize functions with the hardware map
         Drive.init(hardwareMap);
         Intake.init(hardwareMap);
-        config();
-    }
-
-    public void config() {
-        strafeFix = 1.1;
     }
 
     public void loop() {
@@ -67,7 +64,7 @@ public class MainTeleOp extends OpMode {
     }
 
     public void fieldCentricDrive() {
-        Drive.FieldCentric(ctrlLX, ctrlLY, -ctrlRX, 1-ctrlRTrig, ctrlHome, telemetry);
+        Drive.FieldCentric(ctrlLX, ctrlLY, -ctrlRX, 1-ctrlRTrig, ctrlHome, strafeFix, telemetry);
     }
 
     public void robotCentricDrive() {
