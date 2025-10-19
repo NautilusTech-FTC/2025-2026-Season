@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
+import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 
 @Config
 @TeleOp
@@ -13,12 +14,16 @@ import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 public class MainTeleOp extends OpMode {
 
     DrivingMethods Drive = new DrivingMethods();
+    IntakeMethods Intake = new IntakeMethods();
 
     double ctrlLX;
     double ctrlLY;
     double ctrlRX;
     double ctrlRTrig;
     boolean ctrlHome;
+    boolean ctrlIntake;
+
+    double strafeFix;
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
@@ -26,27 +31,46 @@ public class MainTeleOp extends OpMode {
 
         //initialize functions with the hardware map
         Drive.init(hardwareMap);
+        Intake.init(hardwareMap);
+        config();
+    }
+
+    public void config() {
+        strafeFix = 1.1;
     }
 
     public void loop() {
         controlVars();
         fieldCentricDrive();
-        //robotCentricDrive()
+        intake();
+        //robotCentricDrive();
+
     }
 
     public void controlVars() {
-        ctrlLX = gamepad1.left_stick_x * 1.1; //Robot move Y
+        ctrlLX = gamepad1.left_stick_x; //Robot move Y
         ctrlLY = gamepad1.left_stick_y; //Robot move Y
         ctrlRX = gamepad1.right_stick_x; //Robot rotation
         ctrlRTrig = gamepad1.right_trigger; //Robot speed
         ctrlHome = gamepad1.options; //IMU reset for field centric
+        ctrlIntake = gamepad1.a; //Intake
+    }
+
+    public void intake() {
+        if (ctrlIntake) {
+            Intake.motorPower(1.0);
+            telemetry.addData("intake", true);
+        } else {
+            Intake.motorPower(0.0);
+        }
+
     }
 
     public void fieldCentricDrive() {
-        Drive.FieldCentric(ctrlLX * 1.1, ctrlLY, -ctrlRX, 1-ctrlRTrig, ctrlHome, telemetry);
+        Drive.FieldCentric(ctrlLX, ctrlLY, -ctrlRX, 1-ctrlRTrig, ctrlHome, telemetry);
     }
 
     public void robotCentricDrive() {
-        Drive.RobotCentric(ctrlLX * 1.1, ctrlLY, -ctrlRX, 1-ctrlRTrig);
+        Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
     }
 }

@@ -79,10 +79,14 @@ public class DrivingMethods {
         // Sets the botHeading to the IMU yaw angle in radians
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
+        if (IMUReset) {
+            imu.resetYaw();
+        }
+
         telemetry.addLine(String.valueOf(botHeading));
 
         // TODO: explain this math
-        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading);
+        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * 1.1;
         double rotY = lx * Math.sin(botHeading) + ly * Math.cos(botHeading);
 
         /*
