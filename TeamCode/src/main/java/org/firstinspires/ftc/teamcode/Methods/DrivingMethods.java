@@ -86,7 +86,7 @@ public class DrivingMethods {
         telemetry.addLine(String.valueOf(botHeading));
 
         // TODO: explain this math
-        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * strafeFix;
+        double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * 1.1;
         double rotY = lx * Math.sin(botHeading) + ly * Math.cos(botHeading);
 
         /*

@@ -7,19 +7,18 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class TransferMethods {
 
     CRServo transferServo;
+    Servo spoonServo;
 
-    //TODO: change to what we actually want, this is a test value
-    double servoSpeed = 0.75;
-
-    public void init (HardwareMap hwMap) {
-        transferServo = hwMap.get(CRServo.class, "TransferServo");
+    public void init (HardwareMap hardwareMap) {
+        transferServo = hardwareMap.get(CRServo.class, "TransferServo");
+        spoonServo = hardwareMap.get(Servo.class, "SpoonServo");
     }
 
-    public void spin () {
-        transferServo.setPower(servoSpeed);
+    public void servoPower (double power) {
+        transferServo.setPower(power);
     }
 
-    public void stopSpinning () {
-        transferServo.setPower(0);
+    public void spoonPos (double position) {
+        spoonServo.setPosition(position);
     }
 }
