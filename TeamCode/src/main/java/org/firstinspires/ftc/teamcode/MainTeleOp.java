@@ -60,7 +60,7 @@ public class MainTeleOp extends OpMode {
     }
 
     public void controlVars() {
-        ctrlLX = gamepad1.left_stick_x; //Robot move Y
+        ctrlLX = gamepad1.left_stick_x; //Robot move X
         ctrlLY = gamepad1.left_stick_y; //Robot move Y
         ctrlRX = gamepad1.right_stick_x; //Robot rotation
         ctrlRTrig = gamepad1.right_trigger; //Robot speed
