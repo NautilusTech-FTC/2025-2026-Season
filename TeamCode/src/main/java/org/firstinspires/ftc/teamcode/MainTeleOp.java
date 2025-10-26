@@ -77,7 +77,7 @@ public class MainTeleOp extends OpMode {
     }
 
     public void robotCentricDrive() {
-        Drive.RobotCentric(-ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
+        Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
     }
 
     public void intake_Transfer() {
