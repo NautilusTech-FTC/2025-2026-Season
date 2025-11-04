@@ -20,7 +20,7 @@ public class MainTeleOp extends OpMode {
     IntakeMethods Intake = new IntakeMethods();
     ShooterMethods Shooter = new ShooterMethods();
     TransferMethods Transfer = new TransferMethods();
-    LEDMethods Color = new LEDMethods();
+    LEDMethods LED = new LEDMethods();
 
     double ctrlLX;
     double ctrlLY;
@@ -35,6 +35,8 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStartShootMotorL;
     double spoonRunTime;
     int spoonPhase;
+
+    double shooterSpeed;
 
 
     //Config variables:
@@ -51,7 +53,7 @@ public class MainTeleOp extends OpMode {
         Intake.init(hardwareMap);
         Transfer.init(hardwareMap);
         Shooter.init(hardwareMap);
-        Color.init(hardwareMap);
+        LED.init(hardwareMap);
         resetRuntime();
     }
 
@@ -102,8 +104,6 @@ public class MainTeleOp extends OpMode {
             Transfer.servoPower(0.0);
             }
         }
-
-
     }
 
     public void shoot() {
@@ -136,6 +136,9 @@ public class MainTeleOp extends OpMode {
             Shooter.motorPower(0.0);
         }
 
-        Shooter.getSpeed();
+        shooterSpeed = Shooter.getSpeed(getRuntime());
+        telemetry.addData("Shooter Speed:", shooterSpeed);
+
+        LED.redToGreen(shooterSpeed / 175);
     }
 }

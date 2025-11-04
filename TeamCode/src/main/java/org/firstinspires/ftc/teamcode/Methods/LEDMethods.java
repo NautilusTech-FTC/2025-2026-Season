@@ -15,6 +15,11 @@ public class LEDMethods {
     }
 
     public void redToGreen(double val) {
-        led.setPosition(0.277+(val*0.223));
+        if (val >= 1) {
+            led.setPosition(0.5);
+        } else {
+            led.setPosition(0.277+(val*0.223));
+        }
+
     }
 }
