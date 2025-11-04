@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
+import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
 
@@ -19,6 +20,7 @@ public class MainTeleOp extends OpMode {
     IntakeMethods Intake = new IntakeMethods();
     ShooterMethods Shooter = new ShooterMethods();
     TransferMethods Transfer = new TransferMethods();
+    LEDMethods Color = new LEDMethods();
 
     double ctrlLX;
     double ctrlLY;
@@ -28,15 +30,17 @@ public class MainTeleOp extends OpMode {
     boolean ctrlTransSpinner;
     boolean ctrlUnTransSpinner;
     boolean ctrlSpoon;
-    boolean stopShootMotor;
-    boolean startShootMotor;
+    boolean ctrlStopShootMotor;
+    boolean ctrlStartShootMotorS;
+    boolean ctrlStartShootMotorL;
     double spoonRunTime;
     int spoonPhase;
 
 
     //Config variables:
     double strafeFix = 1.1;
-    double ctrlShooterPower = 0.7;
+    double shortShooterPower = 0.75;
+    double longShooterPower = 0.85;
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
@@ -47,6 +51,7 @@ public class MainTeleOp extends OpMode {
         Intake.init(hardwareMap);
         Transfer.init(hardwareMap);
         Shooter.init(hardwareMap);
+        Color.init(hardwareMap);
         resetRuntime();
     }
 
@@ -67,9 +72,10 @@ public class MainTeleOp extends OpMode {
         ctrlHome = gamepad1.options; //IMU reset for field centric
         ctrlTransSpinner = gamepad2.left_bumper; //Intake and flywheel
         ctrlUnTransSpinner = gamepad2.right_bumper; //Eject intake
-        ctrlSpoon = gamepad2.y; //Spin shooter and move holy spoon
-        startShootMotor = gamepad2.x;
-        stopShootMotor = gamepad2.b; //Stop shooter spinning
+        ctrlSpoon = gamepad2.y; //Spin shooter and move holy spoon (shoots)
+        ctrlStopShootMotor = gamepad2.b; //Stop shooter spinning
+        ctrlStartShootMotorS = gamepad2.x; // Short range motor
+        ctrlStartShootMotorL = gamepad2.a; // Long range motor
     }
 
     public void fieldCentricDrive() {
@@ -89,7 +95,7 @@ public class MainTeleOp extends OpMode {
             Intake.motorPower(1.0);
             Transfer.servoPower(1.0);
         } else {
-            if (spoonPhase == 3) { //This is to ensure that the ball does stuff after the spoon shoots
+            if (spoonPhase == 2) { //This is to ensure that the ball does stuff after the spoon shoots
                 Transfer.servoPower(-1.0);
             } else {
             Intake.motorPower(0.0);
@@ -101,32 +107,35 @@ public class MainTeleOp extends OpMode {
     }
 
     public void shoot() {
-        if (ctrlSpoon) {
+        if (ctrlSpoon & (spoonPhase == 0)) {
             spoonRunTime = getRuntime();
-            Transfer.spoonPos(1);
             spoonPhase = 1;
+            Transfer.spoonPos(0.8);
         }
 
-        if (startShootMotor) {
-            Shooter.motorPower(ctrlShooterPower); // start spinning shooter if it's not already spinning
-        }
 
         if ((getRuntime()-spoonRunTime > 0.5) & (spoonPhase == 1)) {
-            Transfer.spoonPos(0.8);
-            spoonPhase++;
-        }
-
-        if ((getRuntime()-spoonRunTime > 1.0) & (spoonPhase == 2)) {
             Transfer.spoonPos(1);
             spoonPhase++;
         }
 
-        if (getRuntime()-spoonRunTime > 2.0) {
+        if (getRuntime()-spoonRunTime > 1.5) {
             spoonPhase = 0;
         }
 
-        if (stopShootMotor) {
+
+        if (ctrlStartShootMotorS) {
+            Shooter.motorPower(shortShooterPower); // start spinning shooter if it's not already spinning
+        }
+
+        if (ctrlStartShootMotorL) {
+            Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
+        }
+
+        if (ctrlStopShootMotor) {
             Shooter.motorPower(0.0);
         }
+
+        Shooter.getSpeed();
     }
 }
