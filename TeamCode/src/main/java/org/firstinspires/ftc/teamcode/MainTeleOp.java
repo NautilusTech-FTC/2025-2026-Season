@@ -43,6 +43,7 @@ public class MainTeleOp extends OpMode {
     double strafeFix = 1.1;
     double shortShooterPower = 0.75;
     double longShooterPower = 0.85;
+    int shootSpeedLEDMax = 175;
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
@@ -63,7 +64,6 @@ public class MainTeleOp extends OpMode {
         intake_Transfer();
         shoot();
         robotCentricDrive();
-
     }
 
     public void controlVars() {
@@ -138,7 +138,6 @@ public class MainTeleOp extends OpMode {
 
         shooterSpeed = Shooter.getSpeed(getRuntime());
         telemetry.addData("Shooter Speed:", shooterSpeed);
-
-        LED.redToGreen(shooterSpeed / 175);
+        LED.redToGreen(shooterSpeed / shootSpeedLEDMax);
     }
 }
