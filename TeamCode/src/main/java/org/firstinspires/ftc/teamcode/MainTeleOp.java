@@ -35,6 +35,7 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStartShootMotorL;
     double spoonRunTime;
     int spoonPhase;
+    double targetSpeed;
 
     double shooterSpeed;
 
@@ -126,10 +127,12 @@ public class MainTeleOp extends OpMode {
 
         if (ctrlStartShootMotorS) {
             Shooter.motorPower(shortShooterPower); // start spinning shooter if it's not already spinning
+            targetSpeed = 150;
         }
 
         if (ctrlStartShootMotorL) {
             Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
+            targetSpeed = 165;
         }
 
         if (ctrlStopShootMotor) {
@@ -138,6 +141,10 @@ public class MainTeleOp extends OpMode {
 
         shooterSpeed = Shooter.getSpeed(getRuntime());
         telemetry.addData("Shooter Speed:", shooterSpeed);
-        LED.redToGreen(shooterSpeed / shootSpeedLEDMax);
+        if (shooterSpeed >= targetSpeed) {
+            LED.redToGreen(1);
+        } else {
+            LED.redToGreen(0.1);
+        }
     }
 }

@@ -74,7 +74,7 @@ public class DrivingMethods {
     public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, double strafeFix, Telemetry telemetry) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), rx (right_stick_x), and IMUReset (options button)
 
-        motorSpeed = (0.1 + 0.9 * speed);
+        motorSpeed = (0.25 + 0.75 * speed);
 
         // Sets the botHeading to the IMU yaw angle in radians
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
@@ -114,7 +114,7 @@ public class DrivingMethods {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), and rx (right_stick_x)
 
         //Speed is passed in as a range from 0-1. We want it to have a minimum speed of 0.1, so we account for it here.
-        motorSpeed = (0.1 + 0.9 * speed);
+        motorSpeed = (0.25 + 0.75 * speed);
 
         // Uses math to decide the power of each motor in order to make it drive in any direction that is passed in by the lx, ly, and rx varibles
         powerFL = motorSpeed * (ly + rx - lx);
