@@ -18,10 +18,8 @@ public class RedClose extends LinearOpMode {
 
         TrajectoryActionBuilder action = drive.actionBuilder(initialPose)
                 .lineToX(-48)
-                .waitSeconds(1)
                 .turnTo(0)
-                .waitSeconds(2)
-                .lineToX(-25);
+                .lineToX(-30);
 
 
         waitForStart();

@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.messages.ThreeDeadWheelInputsMessage;
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double par0YTicks = -3304.868651038205; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 2933.089074943181; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = 3344.8389460880567; // x position of the perpendicular encoder (in tick units)
+        public double par0YTicks = -3286.6652493683973 + 0.00000001; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = 2888.7445310039393; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = -3268.820177723334; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -40,7 +40,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         // TODO: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "Motor0")));
+        par0 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "Motor1")));
         par1 = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "Motor3")));
         perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "Motor2")));
 
