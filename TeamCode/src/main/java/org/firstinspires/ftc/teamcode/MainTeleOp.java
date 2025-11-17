@@ -111,12 +111,12 @@ public class MainTeleOp extends OpMode {
         if (ctrlSpoon & (spoonPhase == 0)) {
             spoonRunTime = getRuntime();
             spoonPhase = 1;
-            Transfer.spoonPos(0.8);
+            Transfer.spoonPos(0.8); //spoon up
         }
 
 
         if ((getRuntime()-spoonRunTime > 0.5) & (spoonPhase == 1)) {
-            Transfer.spoonPos(1);
+            Transfer.spoonPos(1); //spoon down
             spoonPhase++;
         }
 
@@ -127,11 +127,13 @@ public class MainTeleOp extends OpMode {
 
         if (ctrlStartShootMotorS) {
             Shooter.motorPower(shortShooterPower); // start spinning shooter if it's not already spinning
+            //TODO: works best for long, make long shooter power this
             targetSpeed = 150;
         }
 
         if (ctrlStartShootMotorL) {
             Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
+            //TODO: way too powerful
             targetSpeed = 165;
         }
 
