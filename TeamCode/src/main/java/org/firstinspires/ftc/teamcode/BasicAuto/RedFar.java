@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 @Autonomous
 public class RedFar extends LinearOpMode {
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         TrajectoryActionBuilder action = drive.actionBuilder(initialPose)
