@@ -16,6 +16,6 @@ public class ShootPreloadBlueFar extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
-                .lineToX(0);
+                .lineToX(1);
     }
 }
