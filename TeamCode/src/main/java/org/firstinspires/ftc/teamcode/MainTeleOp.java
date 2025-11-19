@@ -41,10 +41,11 @@ public class MainTeleOp extends OpMode {
 
 
     //Config variables:
-    double strafeFix = 1.1;
-    double shortShooterPower = 0.75;
-    double longShooterPower = 0.85;
-    int shootSpeedLEDMax = 175;
+    //These are static so that they can be configured in the driver station app
+    static double strafeFix = 1.1;
+    static double shortShooterPower = 0.75;
+    static double longShooterPower = 0.85;
+
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
