@@ -127,7 +127,7 @@ public class MainTeleOp extends OpMode {
 
 
         if (ctrlStartShootMotorS) {
-            Shooter.motorPower(shortShooterPower); // start spinning shooter if it's not already spinning
+            Shooter.motorPower(Shooter.PID(shortShooterPower,Shooter.getPos(),getRuntime(),new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()))); // start spinning shooter if it's not already spinning
             //TODO: works best for long, make long shooter power this
             targetSpeed = 150;
         }
