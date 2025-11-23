@@ -10,7 +10,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-@TeleOp()
 public class AprilTagsTest extends OpMode {
     private AprilTagProcessor aprilTagProcessor;
     private VisionPortal visionPortal;
