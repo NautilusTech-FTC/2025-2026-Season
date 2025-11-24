@@ -10,11 +10,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class AutoMethods {
-    public static class intake {
+    public static class Intake {
         private DcMotor motor;
         private CRServo servo;
 
-        public intake (HardwareMap hardwareMap) {
+        public Intake (HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotor.class, "IntakeMotor");
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             servo = hardwareMap.get(CRServo.class, "TransferServo");
@@ -77,7 +77,7 @@ public class AutoMethods {
 
 
 
-    public static class shoot {
+    public static class Shoot {
         Servo servo;
         DcMotor motor;
         public Action holySpoonUp () {
