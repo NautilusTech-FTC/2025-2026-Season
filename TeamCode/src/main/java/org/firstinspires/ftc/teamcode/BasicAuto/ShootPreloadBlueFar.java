@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
+@Autonomous
 public class ShootPreloadBlueFar extends LinearOpMode {
     public static class Intake {
         private DcMotor motor;
@@ -91,7 +92,8 @@ public class ShootPreloadBlueFar extends LinearOpMode {
         double oldPos;
 
         public Shoot(HardwareMap hardwareMap) {
-
+            motor = hardwareMap.get(DcMotorEx.class, "ShooterMotor");
+            servo = hardwareMap.get(Servo.class, "SpoonServo");
         }
         public Action holySpoonUp () {
             return new Action() {

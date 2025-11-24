@@ -6,6 +6,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -74,12 +75,16 @@ public class AutoMethods {
             };
         }
     }
-
-
-
     public static class Shoot {
         Servo servo;
-        DcMotor motor;
+        DcMotorEx motor;
+
+        double oldPos;
+
+        public Shoot(HardwareMap hardwareMap) {
+            motor = hardwareMap.get(DcMotorEx.class, "ShooterMotor");
+            servo = hardwareMap.get(Servo.class, "SpoonServo");
+        }
         public Action holySpoonUp () {
             return new Action() {
                 @Override
@@ -103,7 +108,7 @@ public class AutoMethods {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
                     motor.setPower(0.75);
-                    return false;
+                    return (motor.getVelocity() < 1450);
                 }
             };
         }
