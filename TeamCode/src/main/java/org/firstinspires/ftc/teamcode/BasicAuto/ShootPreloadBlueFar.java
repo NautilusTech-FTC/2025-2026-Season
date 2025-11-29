@@ -85,6 +85,10 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             };
         }
     }
+
+    public static int shootPosX = 55;
+    public static double shootAngle = 3.5;
+
     public static class Shoot {
         Servo servo;
         DcMotorEx motor;
@@ -117,7 +121,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    motor.setPower(0.75);
+                    motor.setVelocity(1500);
                     return (motor.getVelocity() < 1450);
                 }
             };
@@ -137,10 +141,6 @@ public class ShootPreloadBlueFar extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Shoot shoot = new Shoot(hardwareMap);
         Intake intake = new Intake(hardwareMap);
-
-
-        int shootPosX = 55;
-        double shootAngle = 3.93;
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
