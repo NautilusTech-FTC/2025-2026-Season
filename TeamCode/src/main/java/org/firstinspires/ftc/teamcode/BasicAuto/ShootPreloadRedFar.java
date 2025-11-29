@@ -20,11 +20,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous
 @Config
-public class ShootPreloadBlueFar extends LinearOpMode {
+@Autonomous
+public class ShootPreloadRedFar extends LinearOpMode {
     public static int shootPosX = 55;
-    public static double shootAngle = 3.6;
+    public static double shootAngle = 2.85;
     public static double shootVelocity = 1500;
 
 
@@ -146,8 +146,8 @@ public class ShootPreloadBlueFar extends LinearOpMode {
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(62, -15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Shoot shoot = new Shoot(hardwareMap);
-        Intake intake = new Intake(hardwareMap);
+        ShootPreloadBlueFar.Shoot shoot = new ShootPreloadBlueFar.Shoot(hardwareMap);
+        ShootPreloadBlueFar.Intake intake = new ShootPreloadBlueFar.Intake(hardwareMap);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
