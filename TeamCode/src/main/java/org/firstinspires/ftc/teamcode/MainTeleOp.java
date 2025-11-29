@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +11,8 @@ import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
+
+import java.util.List;
 
 @Config
 @TeleOp
@@ -36,15 +39,21 @@ public class MainTeleOp extends OpMode {
     double spoonRunTime;
     int spoonPhase;
     double targetSpeed;
+    double runtime;
+    double spoontime;
 
     double shooterSpeed;
 
 
     //Config variables:
     //These are static so that they can be configured in the driver station app
-    static double strafeFix = 1.1;
-    static double shortShooterPower = 0.75;
-    static double longShooterPower = 0.85;
+    public static double strafeFix = 1.1;
+    public static double shortShooterPower = 1500;
+    public static double longShooterPower = 1500;
+
+    int performanceCycles = 0;
+    double lastTime;
+    double peakCycle = 0;
 
 
     public void init() {
@@ -57,18 +66,36 @@ public class MainTeleOp extends OpMode {
         Transfer.init(hardwareMap);
         Shooter.init(hardwareMap);
         LED.init(hardwareMap);
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+    }
+    public void start() {
         resetRuntime();
     }
-
     public void loop() {
-        controlVars();
+        senseVars();
         //fieldCentricDrive();
-        intake_Transfer();
         shoot();
+        intake_Transfer();
         robotCentricDrive();
+        performanceCycles++;
+        if (runtime-lastTime>peakCycle) {
+            peakCycle = runtime-lastTime;
+        }
+        telemetry.addData("last cycle", runtime-lastTime);
+        telemetry.addData("average cycle", runtime/performanceCycles);
+        telemetry.addData("peak cycle", peakCycle);
+
+        lastTime = runtime;
+
     }
 
-    public void controlVars() {
+    public void senseVars() {
+        //INFO FOR OTHER PROGRAMMERS: to optimise reads, we are repurposing this function to do BULK READS. Please try not to read sensors anywhere else in the code.
         ctrlLX = gamepad1.left_stick_x; //Robot move X
         ctrlLY = gamepad1.left_stick_y; //Robot move Y
         ctrlRX = gamepad1.right_stick_x; //Robot rotation
@@ -80,6 +107,8 @@ public class MainTeleOp extends OpMode {
         ctrlStopShootMotor = gamepad2.b; //Stop shooter spinning
         ctrlStartShootMotorS = gamepad2.x; // Short range motor
         ctrlStartShootMotorL = gamepad2.a; // Long range motor
+        runtime = getRuntime();
+        Shooter.position = Shooter.shooterMotor.getCurrentPosition();
     }
 
     public void fieldCentricDrive() {
@@ -109,43 +138,48 @@ public class MainTeleOp extends OpMode {
     }
 
     public void shoot() {
+        spoontime = runtime-spoonRunTime;
         if (ctrlSpoon & (spoonPhase == 0)) {
-            spoonRunTime = getRuntime();
+            spoonRunTime = runtime;
             spoonPhase = 1;
             Transfer.spoonPos(0.8); //spoon up
         }
 
 
-        if ((getRuntime()-spoonRunTime > 0.5) & (spoonPhase == 1)) {
+        if ((spoontime > 0.5) & (spoonPhase == 1)) {
             Transfer.spoonPos(1); //spoon down
             spoonPhase++;
         }
 
-        if (getRuntime()-spoonRunTime > 1.5) {
+        if (spoontime > 1.5) {
             spoonPhase = 0;
         }
 
 
         if (ctrlStartShootMotorS) {
-            Shooter.motorPower(Shooter.PID(shortShooterPower,Shooter.getPos(),getRuntime(),new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()))); // start spinning shooter if it's not already spinning
+            /*Shooter.motorPower(Shooter.PID(targetSpeed,Shooter.getPos(),getRuntime(),new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()))); // start spinning shooter if it's not already spinning
             //TODO: works best for long, make long shooter power this
-            targetSpeed = 150;
-        }
+            targetSpeed = 150; */
+
+            Shooter.motorVelocity(shortShooterPower);
+        } //The "desired speed" for PID is actually the target speed. Otherwise, the motor speed would go negative, so we can't use "ShortShootPower" and "LongShoot
 
         if (ctrlStartShootMotorL) {
-            Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
+            /*Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
             //TODO: way too powerful
-            targetSpeed = 165;
+            targetSpeed = 150;*/
+
+            Shooter.motorVelocity(longShooterPower);
         }
 
         if (ctrlStopShootMotor) {
             Shooter.motorPower(0.0);
         }
 
-        shooterSpeed = Shooter.getSpeed(getRuntime());
+        shooterSpeed = Shooter.getSpeed(runtime);
         telemetry.addData("Shooter Speed:", shooterSpeed);
-        if (shooterSpeed >= targetSpeed) {
-            LED.redToGreen(1);
+        if (shooterSpeed >= 148 || shooterSpeed <= 156) {
+            LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
         } else {
             LED.redToGreen(0.1);
         }
