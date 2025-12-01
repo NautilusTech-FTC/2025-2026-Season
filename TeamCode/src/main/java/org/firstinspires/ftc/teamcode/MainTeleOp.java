@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
+import org.firstinspires.ftc.teamcode.Methods.VisionMethods;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class MainTeleOp extends OpMode {
     ShooterMethods Shooter = new ShooterMethods();
     TransferMethods Transfer = new TransferMethods();
     LEDMethods LED = new LEDMethods();
+    VisionMethods Vision = new VisionMethods();
 
     double ctrlLX;
     double ctrlLY;
@@ -41,15 +43,25 @@ public class MainTeleOp extends OpMode {
     double targetSpeed;
     double runtime;
     double spoontime;
-
     double shooterSpeed;
+
+
+    boolean driverReady = false;
+    int teamColor = 0;
+    boolean ctrlTeamSelectLeft;
+    boolean ctrlTeamSelectRight;
+    boolean ctrlTeamSelectConfirm;
+    boolean ctrlAutoAimToggle;
+    boolean autoAimToggle;
+    boolean autoAim = false;
+    double correctionValue;
 
 
     //Config variables:
     //These are static so that they can be configured in the driver station app
     public static double strafeFix = 1.1;
-    public static double shortShooterPower = 1500;
-    public static double longShooterPower = 1500;
+    public static double shortShooterPower = 1550;
+    public static double longShooterPower = 1550;
 
     int performanceCycles = 0;
     double lastTime;
@@ -66,6 +78,7 @@ public class MainTeleOp extends OpMode {
         Transfer.init(hardwareMap);
         Shooter.init(hardwareMap);
         LED.init(hardwareMap);
+        Vision.init(hardwareMap);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
@@ -76,12 +89,16 @@ public class MainTeleOp extends OpMode {
     public void start() {
         resetRuntime();
     }
+
     public void loop() {
+        performanceTracking();
         senseVars();
-        //fieldCentricDrive();
         shoot();
         intake_Transfer();
         robotCentricDrive();
+    }
+
+    public void performanceTracking() {
         performanceCycles++;
         if (runtime-lastTime>peakCycle) {
             peakCycle = runtime-lastTime;
@@ -89,9 +106,7 @@ public class MainTeleOp extends OpMode {
         telemetry.addData("last cycle", runtime-lastTime);
         telemetry.addData("average cycle", runtime/performanceCycles);
         telemetry.addData("peak cycle", peakCycle);
-
         lastTime = runtime;
-
     }
 
     public void senseVars() {
@@ -107,8 +122,13 @@ public class MainTeleOp extends OpMode {
         ctrlStopShootMotor = gamepad2.b; //Stop shooter spinning
         ctrlStartShootMotorS = gamepad2.x; // Short range motor
         ctrlStartShootMotorL = gamepad2.a; // Long range motor
+        ctrlTeamSelectLeft = gamepad2.dpad_left;
+        ctrlTeamSelectRight = gamepad2.dpad_right;
+        ctrlTeamSelectConfirm = gamepad2.dpad_up;
+        ctrlAutoAimToggle = gamepad1.a;
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
+        Shooter.velocity = Shooter.shooterMotor.getVelocity();
     }
 
     public void fieldCentricDrive() {
@@ -116,14 +136,41 @@ public class MainTeleOp extends OpMode {
     }
 
     public void robotCentricDrive() {
-        Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
+        if (!driverReady) {
+            telemetry.addLine("Please select a team:");
+            telemetry.addLine("Blue <- -> Red");
+            if (ctrlTeamSelectLeft) {
+                teamColor = 1;
+            } else if (ctrlTeamSelectRight) {
+                teamColor = 0;
+            }
+            if (teamColor == 1) {telemetry.addLine("Current team: Red");}
+            else {telemetry.addLine("Current team: Blue");}
+            telemetry.addLine("Press start to confirm");
+            if (ctrlTeamSelectConfirm) {
+                driverReady = true;
+            }
+        }
+
+        if (ctrlAutoAimToggle & autoAimToggle) {
+            autoAimToggle = false;
+            autoAim = !autoAim;
+        } else if (!ctrlAutoAimToggle) {
+            autoAimToggle = true;
+        }
+
+        if (autoAim) {
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -Vision.aim(teamColor, telemetry), 1 - ctrlRTrig);
+        } else {
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
+        }
+
     }
 
     public void intake_Transfer() {
         if (ctrlTransSpinner) {
             Intake.motorPower(-1.0);
             Transfer.servoPower(-1.0);
-            telemetry.addData("intake", true);
         } else if (ctrlUnTransSpinner) {
             Intake.motorPower(1.0);
             Transfer.servoPower(1.0);
@@ -177,7 +224,6 @@ public class MainTeleOp extends OpMode {
         }
 
         shooterSpeed = Shooter.getSpeed(runtime);
-        telemetry.addData("Shooter Speed:", shooterSpeed);
         if (shooterSpeed >= 148 || shooterSpeed <= 156) {
             LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
         } else {
