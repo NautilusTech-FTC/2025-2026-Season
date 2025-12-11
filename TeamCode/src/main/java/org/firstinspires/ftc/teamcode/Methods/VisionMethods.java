@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Methods;
 
 
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,9 +24,12 @@ public class VisionMethods {
     boolean targetAcquired;
     int target;
 
+
     public static double divisor = 40;
     public static double blueOffset = 0;
-    public static double redOffset = 0;
+    public static double redOffset = -2;
+
+
 
 
 
@@ -82,11 +86,13 @@ public class VisionMethods {
             }
         } else {
             correctionValue = 0;
+            return(2);
         }
+
         if (Math.abs(correctionValue) < 0.1) {
             correctionValue = 0;
         } else if (Math.abs(correctionValue) > 1) {
-            correctionValue = 1;
+            correctionValue = Math.signum(correctionValue);
         }
         telemetry.addData("correction value", correctionValue);
 
