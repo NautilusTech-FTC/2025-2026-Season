@@ -30,12 +30,12 @@ public class ShootPreloadBlueFar extends LinearOpMode {
 
     public static class Intake {
         private DcMotor motor;
-        private CRServo servo;
+        private CRServo transServo;
 
         public Intake (HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotor.class, "IntakeMotor");
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            servo = hardwareMap.get(CRServo.class, "TransferServo");
+            transServo = hardwareMap.get(CRServo.class, "TransferServo");
         }
         public Action spinIn () {
             return new Action() {
@@ -68,7 +68,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(-1);
+                    transServo.setPower(-1);
                     packet.addLine("TransSpinIn");
                     return false;
                 }
@@ -78,7 +78,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(1);
+                    transServo.setPower(1);
                     return false;
                 }
             };
@@ -87,7 +87,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(0);
+                    transServo.setPower(0);
                     return false;
                 }
             };
@@ -170,6 +170,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
+                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
@@ -179,6 +180,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
+                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
@@ -188,6 +190,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
+                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
