@@ -10,18 +10,25 @@ import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 @TeleOp
 public class MecanumBot extends OpMode {
     DrivingMethods Drive = new DrivingMethods();
-    double ctrlLX = gamepad1.left_stick_x;
-    double ctrlLY = gamepad1.left_stick_y;
-    double ctrlRX = gamepad1.right_stick_x;
-    double ctrlRT = gamepad1.right_trigger;
-    boolean ctrlOptions = gamepad1.options;
+
     double strafeFix = 1.1;
+
+    double ctrlLX;
+    double ctrlLY;
+    double ctrlRX;
+    double ctrlRT;
+    boolean ctrlOptions;
 
     public void init() {
         Drive.init(hardwareMap);
     }
 
     public void loop() {
+        ctrlLX = gamepad1.left_stick_x;
+        ctrlLY = gamepad1.left_stick_y;
+        ctrlRX = gamepad1.right_stick_x;
+        ctrlRT = gamepad1.right_trigger;
+        ctrlOptions = gamepad1.options;
         FieldCentric();
     }
 
