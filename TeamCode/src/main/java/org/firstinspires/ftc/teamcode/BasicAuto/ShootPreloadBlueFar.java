@@ -153,8 +153,11 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        waitForStart();
+        TrajectoryActionBuilder exit = drive.actionBuilder(initialPose)
+                .turnTo(Math.PI)
+                .lineToX(39);
 
+        waitForStart();
 
 
 
@@ -170,7 +173,6 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
-                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
@@ -180,7 +182,6 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
-                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
@@ -190,11 +191,11 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
-                                intake.spinIn(),
                                 new SleepAction(1),
                                 intake.transSpinStop()
                         ),
-                        shoot.shooterOff()
+                        shoot.shooterOff(),
+                        exit.build()
                 )
         );
     }
