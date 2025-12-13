@@ -174,7 +174,8 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
                                 new SleepAction(1),
-                                intake.transSpinStop()
+                                intake.transSpinStop(),
+                                intake.spinStop()
                         ),
                         new SequentialAction(
                                 shoot.holySpoonUp(),
@@ -183,7 +184,8 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
                                 new SleepAction(1),
-                                intake.transSpinStop()
+                                intake.transSpinStop(),
+                                intake.spinStop()
                         ),
                         new SequentialAction(
                                 shoot.holySpoonUp(),
@@ -192,7 +194,8 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
                                 new SleepAction(1),
-                                intake.transSpinStop()
+                                intake.transSpinStop(),
+                                intake.spinStop()
                         ),
                         shoot.shooterOff(),
                         exit.build()
