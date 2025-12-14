@@ -153,8 +153,11 @@ public class ShootPreloadRedFar extends LinearOpMode {
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        waitForStart();
+        TrajectoryActionBuilder exit = drive.actionBuilder(initialPose)
+                .turnTo(Math.PI)
+                .lineToX(39);
 
+        waitForStart();
 
 
 
@@ -171,7 +174,8 @@ public class ShootPreloadRedFar extends LinearOpMode {
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
                                 new SleepAction(1),
-                                intake.transSpinStop()
+                                intake.transSpinStop(),
+                                intake.spinStop()
                         ),
                         new SequentialAction(
                                 shoot.holySpoonUp(),
@@ -180,7 +184,8 @@ public class ShootPreloadRedFar extends LinearOpMode {
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
                                 new SleepAction(1),
-                                intake.transSpinStop()
+                                intake.transSpinStop(),
+                                intake.spinStop()
                         ),
                         new SequentialAction(
                                 shoot.holySpoonUp(),
@@ -188,10 +193,12 @@ public class ShootPreloadRedFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
-                                new SleepAction(1),
+                                new SleepAction(1),,
+                                intake.spinStop()
                                 intake.transSpinStop()
                         ),
-                        shoot.shooterOff()
+                        shoot.shooterOff(),
+                        exit.build()
                 )
         );
     }
