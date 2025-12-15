@@ -188,6 +188,7 @@ public class MainTeleOp extends OpMode {
         } else {
             if (spoonPhase == 2) { //This is to ensure that the ball does stuff after the spoon shoots
                 Transfer.servoPower(-1.0);
+                Intake.motorPower(-1.0);
             } else {
             Intake.motorPower(0.0);
             Transfer.servoPower(0.0);
@@ -200,17 +201,15 @@ public class MainTeleOp extends OpMode {
         if (ctrlSpoon & (spoonPhase == 0)) {
             spoonRunTime = runtime;
             spoonPhase = 1;
-            Transfer.spoonPos(0.8); //spoon up
+            Transfer.spoonPos(0.86); //spoon up
         }
 
-
-        if ((spoontime > 0.5) & (spoonPhase == 1)) {
+        if ((spoontime > 0.1) & (spoonPhase == 1)) {
             Transfer.spoonPos(1); //spoon down
-            Intake.motorPower(-1.0); // Spins intake to avoid stuck balls.
             spoonPhase++;
         }
 
-        if (spoontime > 1.5) {
+        if (spoontime > 0.4) {
             spoonPhase = 0;
         }
 
