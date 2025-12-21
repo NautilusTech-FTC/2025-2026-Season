@@ -45,6 +45,7 @@ public class MainTeleOp extends OpMode {
     double runtime;
     double spoontime;
     double shooterSpeed;
+    boolean shooterEnable;
 
 
     boolean driverReady = false;
@@ -91,6 +92,7 @@ public class MainTeleOp extends OpMode {
     }
     public void start() {
         resetRuntime();
+        Transfer.spoonPos(0.97);
     }
 
     public void loop() {
@@ -205,7 +207,7 @@ public class MainTeleOp extends OpMode {
         }
 
         if ((spoontime > 0.1) & (spoonPhase == 1)) {
-            Transfer.spoonPos(1); //spoon down
+            Transfer.spoonPos(0.97); //spoon down
             spoonPhase++;
         }
 
@@ -214,26 +216,25 @@ public class MainTeleOp extends OpMode {
         }
 
         if (ctrlStartShootMotorS) {
-            /*Shooter.motorPower(Shooter.PID(targetSpeed,Shooter.getPos(),getRuntime(),new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry()))); // start spinning shooter if it's not already spinning
-            //TODO: works best for long, make long shooter power this
-            targetSpeed = 150; */
-
-            Shooter.motorVelocity(shortShooterPower);
-        } //The "desired speed" for PID is actually the target speed. Otherwise, the motor speed would go negative, so we can't use "ShortShootPower" and "LongShoot
+            shooterEnable = true;
+        }
 
         if (ctrlStartShootMotorL) {
-            /*Shooter.motorPower(longShooterPower); // start spinning shooter if it's not already spinning
-            //TODO: way too powerful
-            targetSpeed = 150;*/
-
-            Shooter.motorVelocity(longShooterPower);
+            shooterEnable = true;
         }
 
         if (ctrlStopShootMotor) {
             Shooter.motorPower(0.0);
+            shooterEnable = false;
         }
 
-        shooterSpeed = Shooter.getSpeed(runtime);
+        shooterSpeed = Shooter.getSpeed();
+
+        if(shooterEnable & shooterSpeed < 1470) {
+            Shooter.motorPower(1);
+        } else if (shooterEnable) {
+            Shooter.motorVelocity(longShooterPower);
+        }
         if (shooterSpeed >= 1480 && shooterSpeed <= 1560) {
             LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
         } else {
