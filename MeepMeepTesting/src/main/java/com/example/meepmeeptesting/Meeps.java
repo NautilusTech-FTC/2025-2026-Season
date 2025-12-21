@@ -42,7 +42,7 @@ public class Meeps {
                 .turnTo(Math.PI)
                 .lineToX(40)
                 .build());
-/*
+
         redClose.runAction(redClose.getDrive().actionBuilder(new Pose2d(-51, 49.5, Math.toRadians(307)))
                 .lineToX(-48)
                 .waitSeconds(1)
@@ -50,7 +50,7 @@ public class Meeps {
                 .waitSeconds(1)
                 .lineToX(-30)
                 .build());
-
+/*
         blueClose.runAction(blueClose.getDrive().actionBuilder(new Pose2d(-51, -49.5, Math.toRadians(53)))
                 .lineToX(-48)
                 .waitSeconds(1)
@@ -62,9 +62,9 @@ public class Meeps {
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_JUICE_BLACK)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                .addEntity(redFar)
-                .addEntity(blueFar)
-                //.addEntity(redClose)
+                //.addEntity(redFar)
+                //.addEntity(blueFar)
+                .addEntity(redClose)
                 //.addEntity(blueClose)
                 .start();
     }

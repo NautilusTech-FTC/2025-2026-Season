@@ -28,11 +28,7 @@ public class ShooterMethods {
         shooterMotor.setVelocity(vel);
     }
 
-    public void fetch() {
-
-    }
-
-    public double getSpeed(double runtime) {
+    public double getSpeed() {
         return(velocity);
     }
 

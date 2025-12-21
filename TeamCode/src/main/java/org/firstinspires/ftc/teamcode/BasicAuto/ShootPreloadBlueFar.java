@@ -153,7 +153,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder exit = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder exit = aim.endTrajectory().fresh()
                 .turnTo(Math.PI)
                 .lineToX(39);
 

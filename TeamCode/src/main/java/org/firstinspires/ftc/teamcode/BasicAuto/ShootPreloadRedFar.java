@@ -153,7 +153,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder exit = drive.actionBuilder(initialPose)
+        TrajectoryActionBuilder exit = aim.endTrajectory().fresh()
                 .turnTo(Math.PI)
                 .lineToX(39);
 
@@ -162,6 +162,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
 
 
         if (isStopRequested()) return;
+
 
         Actions.runBlocking(
                 new SequentialAction(
@@ -193,8 +194,8 @@ public class ShootPreloadRedFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 new SleepAction(0.5),
                                 intake.transSpinIn(),
-                                new SleepAction(1),,
-                                intake.spinStop()
+                                new SleepAction(1),
+                                intake.spinStop(),
                                 intake.transSpinStop()
                         ),
                         shoot.shooterOff(),
