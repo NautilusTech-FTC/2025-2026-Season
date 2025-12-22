@@ -50,9 +50,9 @@ public class MainTeleOp extends OpMode {
 
     boolean driverReady = false;
     int teamColor = 0;
-    boolean ctrlTeamSelectLeft;
-    boolean ctrlTeamSelectRight;
-    boolean ctrlTeamSelectConfirm;
+    boolean ctrlTeamSelectLeft = false;
+    boolean ctrlTeamSelectRight = false;
+    boolean ctrlTeamSelectConfirm = false;
     boolean ctrlAutoAimToggle;
     boolean autoAimToggle;
     boolean autoAim = false;
@@ -62,8 +62,7 @@ public class MainTeleOp extends OpMode {
     //Config variables:
     //These are static so that they can be configured in the driver station app
     public static double strafeFix = 1.1;
-    public static double shortShooterPower = 1550;
-    public static double longShooterPower = 1550;
+    public static double ShooterVelocity = 1550;
 
     int performanceCycles = 0;
     double lastTime;
@@ -83,11 +82,9 @@ public class MainTeleOp extends OpMode {
         Vision.init(hardwareMap);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
-
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
-        gamepad1.rumble(1000);
 
     }
     public void start() {
@@ -139,11 +136,14 @@ public class MainTeleOp extends OpMode {
         Transfer.distance = Transfer.distanceSensor.getDistance(DistanceUnit.CM);
     }
 
+    /*
     public void fieldCentricDrive() {
         Drive.FieldCentric(ctrlLX, ctrlLY, ctrlRX, 1-ctrlRTrig, ctrlHome, strafeFix, telemetry);
     }
+    */
 
     public void robotCentricDrive() {
+
         if (!driverReady) {
             telemetry.addLine("Please select a team:");
             telemetry.addLine("Blue <- -> Red");
@@ -152,8 +152,10 @@ public class MainTeleOp extends OpMode {
             } else if (ctrlTeamSelectRight) {
                 teamColor = 1;
             }
+
             if (teamColor == 1) {telemetry.addLine("Current team: Red");}
             else {telemetry.addLine("Current team: Blue");}
+
             telemetry.addLine("Press start to confirm");
             if (ctrlTeamSelectConfirm) {
                 driverReady = true;
@@ -170,14 +172,9 @@ public class MainTeleOp extends OpMode {
 
         if (autoAim & !(correctionValue == 2)) {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -correctionValue, 1 - ctrlRTrig);
-            if (correctionValue == 0) {
-                gamepad1.rumble(50);
-            }
         } else {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
-
-        gamepad1.rumble(50);
     }
 
     public void intake_Transfer() {
@@ -211,7 +208,7 @@ public class MainTeleOp extends OpMode {
             spoonPhase++;
         }
 
-        if (spoontime > 0.4) {
+        if (spoontime > 0.45) {
             spoonPhase = 0;
         }
 
@@ -230,12 +227,13 @@ public class MainTeleOp extends OpMode {
 
         shooterSpeed = Shooter.getSpeed();
 
-        if(shooterEnable & shooterSpeed < 1470) {
+        if(shooterEnable & shooterSpeed < ShooterVelocity-75) {
             Shooter.motorPower(1);
         } else if (shooterEnable) {
-            Shooter.motorVelocity(longShooterPower);
+            Shooter.motorVelocity(ShooterVelocity);
         }
-        if (shooterSpeed >= 1480 && shooterSpeed <= 1560) {
+
+        if (shooterSpeed >= 1480) {
             LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
         } else {
             LED.redToGreen(0.1);
