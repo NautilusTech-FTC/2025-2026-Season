@@ -62,7 +62,7 @@ public class MainTeleOp extends OpMode {
     //Config variables:
     //These are static so that they can be configured in the driver station app
     public static double strafeFix = 1.1;
-    public static double ShooterVelocity = 1550;
+    public static double ShooterVelocity = 1600;
 
     int performanceCycles = 0;
     double lastTime;
@@ -98,6 +98,8 @@ public class MainTeleOp extends OpMode {
         shoot();
         intake_Transfer();
         robotCentricDrive();
+
+        Transfer.getDetectedColor(telemetry);
 
         telemetry.addData("Distance: ", Transfer.distance);
     }
@@ -200,7 +202,7 @@ public class MainTeleOp extends OpMode {
         if (ctrlSpoon & (spoonPhase == 0)) {
             spoonRunTime = runtime;
             spoonPhase = 1;
-            Transfer.spoonPos(0.86); //spoon up
+            Transfer.spoonPos(0.85); //spoon up
         }
 
         if ((spoontime > 0.1) & (spoonPhase == 1)) {
