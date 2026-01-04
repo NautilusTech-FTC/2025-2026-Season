@@ -5,10 +5,12 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -25,7 +27,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 public class ShootPreloadBlueFar extends LinearOpMode {
     public static int shootPosX = 55;
     public static double shootAngle = 3.6;
-    public static double shootVelocity = 1500;
+    public static double shootVelocity = 1550;
 
 
     public static class Intake {
@@ -108,7 +110,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(0.8);
+                    servo.setPosition(0.86);
                     packet.addLine("SpoonUp");
                     return false;
                 }
@@ -118,7 +120,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(1);
+                    servo.setPosition(0.97);
                     packet.addLine("SpoonDown");
                     return false;
                 }
@@ -143,62 +145,72 @@ public class ShootPreloadBlueFar extends LinearOpMode {
             };
         }
     }
+
+    public static class Combined{
+        Shoot shoot;
+        Intake intake;
+
+        public Combined(HardwareMap hardwareMap) {
+            shoot = new Shoot(hardwareMap);
+            intake = new Intake(hardwareMap);
+        }
+
+        public SequentialAction shoot1 () {
+            return new SequentialAction(
+                    shoot.holySpoonUp(),
+                    new SleepAction(0.5),
+                    shoot.holySpoonDown(),
+                    new SleepAction(0.5),
+                    intake.transSpinIn(),
+                    new SleepAction(1),
+                    intake.transSpinStop(),
+                    intake.spinStop());
+        }
+    }
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(62, -15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Shoot shoot = new Shoot(hardwareMap);
         Intake intake = new Intake(hardwareMap);
+        Combined combined = new Combined(hardwareMap);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder exit = aim.endTrajectory().fresh()
-                .turnTo(Math.PI)
-                .lineToX(39);
+        TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
+                .turnTo(Math.PI/2)
+                .splineToConstantHeading(new Vector2d(61, 61), Math.PI/2);
+
+        TrajectoryActionBuilder getaway = theivery.endTrajectory().fresh()
+                .setTangent(-1.85)
+                .splineToLinearHeading(new Pose2d(55, 15, 2.85), -Math.PI/2);
 
         waitForStart();
-
-
 
         if (isStopRequested()) return;
 
         Actions.runBlocking(
                 new SequentialAction(
+                        shoot.holySpoonDown(),
                         aim.build(),
                         shoot.shooterOn(),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.transSpinStop(),
-                                intake.spinStop()
-                        ),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.transSpinStop(),
-                                intake.spinStop()
-                        ),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.transSpinStop(),
-                                intake.spinStop()
-                        ),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
                         shoot.shooterOff(),
-                        exit.build()
+                        intake.spinIn(),
+                        intake.transSpinIn(),
+                        theivery.build(),
+                        new SleepAction(3),
+                        getaway.build(),
+                        intake.spinStop(),
+                        intake.transSpinStop(),
+                        shoot.shooterOn(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        shoot.shooterOff()
                 )
         );
     }

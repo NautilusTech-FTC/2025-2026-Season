@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,20 +23,21 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
 @Autonomous
+
 public class ShootPreloadRedFar extends LinearOpMode {
     public static int shootPosX = 55;
-    public static double shootAngle = 2.85;
-    public static double shootVelocity = 1500;
+    public static double shootAngle = 2.8;
+    public static double shootVelocity = 1550;
 
 
     public static class Intake {
         private DcMotor motor;
-        private CRServo servo;
+        private CRServo transServo;
 
         public Intake (HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotor.class, "IntakeMotor");
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            servo = hardwareMap.get(CRServo.class, "TransferServo");
+            transServo = hardwareMap.get(CRServo.class, "TransferServo");
         }
         public Action spinIn () {
             return new Action() {
@@ -68,7 +70,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(-1);
+                    transServo.setPower(-1);
                     packet.addLine("TransSpinIn");
                     return false;
                 }
@@ -78,7 +80,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(1);
+                    transServo.setPower(1);
                     return false;
                 }
             };
@@ -87,7 +89,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(0);
+                    transServo.setPower(0);
                     return false;
                 }
             };
@@ -108,7 +110,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(0.8);
+                    servo.setPosition(0.86);
                     packet.addLine("SpoonUp");
                     return false;
                 }
@@ -118,7 +120,7 @@ public class ShootPreloadRedFar extends LinearOpMode {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(1);
+                    servo.setPosition(0.97);
                     packet.addLine("SpoonDown");
                     return false;
                 }
@@ -143,63 +145,94 @@ public class ShootPreloadRedFar extends LinearOpMode {
             };
         }
     }
+
+    public static class Combined{
+        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot shoot;
+        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake intake;
+
+        public Combined(HardwareMap hardwareMap) {
+            shoot = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot(hardwareMap);
+            intake = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake(hardwareMap);
+        }
+
+        public SequentialAction shoot1 () {
+            return new SequentialAction(
+                    shoot.holySpoonUp(),
+                    new SleepAction(0.5),
+                    shoot.holySpoonDown(),
+                    new SleepAction(0.5),
+                    intake.transSpinIn(),
+                    new SleepAction(1),
+                    intake.transSpinStop(),
+                    intake.spinStop());
+        }
+    }
     public void runOpMode () {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        ShootPreloadBlueFar.Shoot shoot = new ShootPreloadBlueFar.Shoot(hardwareMap);
-        ShootPreloadBlueFar.Intake intake = new ShootPreloadBlueFar.Intake(hardwareMap);
+        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot shoot = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot(hardwareMap);
+        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake intake = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake(hardwareMap);
+        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Combined combined = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Combined(hardwareMap);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder exit = aim.endTrajectory().fresh()
-                .turnTo(Math.PI)
-                .lineToX(39);
+        TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
+                .turnTo(Math.PI/2)
+                .splineToConstantHeading(new Vector2d(61, 60), Math.PI/2);
+
+        TrajectoryActionBuilder getaway = drive.actionBuilder(new Pose2d(61, 60, Math.PI/2))
+                .setTangent((Math.PI*2)-1.85)
+                .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3);
+
+        TrajectoryActionBuilder firsttwo = aim.endTrajectory().fresh()
+                .setTangent(Math.PI)
+                .splineToLinearHeading(new Pose2d(36, 30, Math.PI/2), Math.PI/2)
+                .lineToY(50);
+
+        TrajectoryActionBuilder end = drive.actionBuilder(new Pose2d(36, 50, Math.PI/2))
+                .setTangent(-Math.PI/2)
+                .splineToLinearHeading(new Pose2d(55, 15, 2.85), 2.85-Math.PI);
+
 
         waitForStart();
 
-
-
         if (isStopRequested()) return;
-
 
         Actions.runBlocking(
                 new SequentialAction(
+                        shoot.holySpoonDown(),
                         aim.build(),
                         shoot.shooterOn(),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.transSpinStop(),
-                                intake.spinStop()
-                        ),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.transSpinStop(),
-                                intake.spinStop()
-                        ),
-                        new SequentialAction(
-                                shoot.holySpoonUp(),
-                                new SleepAction(0.5),
-                                shoot.holySpoonDown(),
-                                new SleepAction(0.5),
-                                intake.transSpinIn(),
-                                new SleepAction(1),
-                                intake.spinStop(),
-                                intake.transSpinStop()
-                        ),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
                         shoot.shooterOff(),
-                        exit.build()
+                        intake.spinIn(),
+                        intake.transSpinIn(),
+                        firsttwo.build(),
+                        end.build(),
+                        intake.spinStop(),
+                        intake.transSpinStop(),
+                        shoot.shooterOn(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        shoot.shooterOff()
+                        /*
+                        intake.spinIn(),
+                        intake.transSpinIn(),
+                        theivery.build(),
+                        new SleepAction(3),
+                        getaway.build(),
+                        intake.spinStop(),
+                        intake.transSpinStop(),
+                        shoot.shooterOn(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        shoot.shooterOff()*/
                 )
         );
     }
