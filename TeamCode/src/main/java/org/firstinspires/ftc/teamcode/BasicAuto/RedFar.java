@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous
+@Autonomous(name="Red Far", group="Drive autos")
 public class RedFar extends LinearOpMode {
     public void runOpMode() {
         Pose2d initialPose = new Pose2d(62, 15, Math.PI);

@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous
+@Autonomous(name="BLUE 6 Ball Far", group="6 Ball Autos")
 @Config
 public class Blue6BallFar extends LinearOpMode {
     public static int shootPosX = 55;
