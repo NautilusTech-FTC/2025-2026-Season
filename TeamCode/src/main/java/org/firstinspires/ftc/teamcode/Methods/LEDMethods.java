@@ -31,7 +31,7 @@ public class LEDMethods {
         if (val >= 1) {
             led.setPosition(highestColor);
         } else {
-            led.setPosition(lowestColor+(val*(highestColor-lowestColor)));
+            led.setPosition(lowestColor);
         }
 
     }

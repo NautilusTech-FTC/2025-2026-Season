@@ -38,6 +38,8 @@ public class Meeps {
                 .lineToY(-54)
                 .setTangent(Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, -15, 3.6), 3.6-Math.PI)
+                .setTangent(-Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2)
                 .build());
 
         blueFar.runAction(blueFar.getDrive().actionBuilder(new Pose2d(62, 15, Math.PI))
@@ -48,12 +50,8 @@ public class Meeps {
                 .lineToY(54)
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, 15, 2.85), 2.85-Math.PI)
-                //.turnTo(Math.PI/2)
-                //.splineToConstantHeading(new Vector2d(61, 60), Math.PI/2)
-                //.setTangent(Math.PI/2)
-                //.splineToLinearHeading(new Pose2d(61, 61, Math.PI/2), Math.PI/2)
-                //.setTangent((Math.PI*2)-1.85)
-                //splineToLinearHeading(new Pose2d(55, 15, 2.85), (Math.PI/2)*3)
+                .setTangent(Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, 35, Math.PI), Math.PI/2)
                 .build());
 
         redClose.runAction(redClose.getDrive().actionBuilder(new Pose2d(-51, 49.5, Math.toRadians(307)))

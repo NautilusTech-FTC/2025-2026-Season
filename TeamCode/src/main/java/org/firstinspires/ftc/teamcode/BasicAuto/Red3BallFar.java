@@ -20,11 +20,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name="BLUE 6 Ball Far", group="6 Ball Autos")
+
+@Autonomous(name="RED 6 Ball Far", group="6 Ball Autos")
 @Config
-public class Blue6BallFar extends LinearOpMode {
+public class Red3BallFar extends LinearOpMode {
     public static int shootPosX = 55;
-    public static double shootAngle = 3.6;
+    public static double shootAngle = 2.8;
     public static double shootVelocity = 1575;
 
 
@@ -145,12 +146,12 @@ public class Blue6BallFar extends LinearOpMode {
     }
 
     public static class Combined{
-        Shoot shoot;
-        Intake intake;
+        Blue6BallFar.Shoot shoot;
+        Blue6BallFar.Intake intake;
 
         public Combined(HardwareMap hardwareMap) {
-            shoot = new Shoot(hardwareMap);
-            intake = new Intake(hardwareMap);
+            shoot = new Blue6BallFar.Shoot(hardwareMap);
+            intake = new Blue6BallFar.Intake(hardwareMap);
         }
 
         public SequentialAction shoot1 () {
@@ -166,36 +167,19 @@ public class Blue6BallFar extends LinearOpMode {
         }
     }
     public void runOpMode () {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        Shoot shoot = new Shoot(hardwareMap);
-        Intake intake = new Intake(hardwareMap);
-        Combined combined = new Combined(hardwareMap);
+        Blue6BallFar.Shoot shoot = new Blue6BallFar.Shoot(hardwareMap);
+        Blue6BallFar.Intake intake = new Blue6BallFar.Intake(hardwareMap);
+        Blue6BallFar.Combined combined = new Blue6BallFar.Combined(hardwareMap);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        /*TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
-                .turnTo(Math.PI/2)
-                .splineToConstantHeading(new Vector2d(61, 60), Math.PI/2);
-
-        TrajectoryActionBuilder getaway = drive.actionBuilder(new Pose2d(61, 60, Math.PI/2))
-                .setTangent((Math.PI*2)-1.85)
-                .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3); */
-
-        TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
-                .setTangent(Math.PI)
-                .splineToLinearHeading(new Pose2d(36, 30, Math.PI/2), Math.PI/2)
-                .lineToY(54)
+        TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI);
-
-        TrajectoryActionBuilder home = row1.endTrajectory().fresh()
-                .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(60, 35, Math.PI), Math.PI/2);
-
-
+                .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2);
 
 
         waitForStart();
@@ -210,29 +194,8 @@ public class Blue6BallFar extends LinearOpMode {
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
-                        intake.spinIn(),
-                        intake.transSpinIn(),
-                        row1.build(),
-                        intake.spinStop(),
-                        intake.transSpinStop(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        combined.shoot1(),
                         shoot.shooterOff(),
                         home.build()
-                        /*
-                        intake.spinIn(),
-                        intake.transSpinIn(),
-                        theivery.build(),
-                        new SleepAction(3),
-                        getaway.build(),
-                        intake.spinStop(),
-                        intake.transSpinStop(),
-                        shoot.shooterOn(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        shoot.shooterOff()*/
                 )
         );
     }

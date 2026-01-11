@@ -185,14 +185,17 @@ public class Red6BallFar extends LinearOpMode {
                 .setTangent((Math.PI*2)-1.85)
                 .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3); */
 
-        TrajectoryActionBuilder firsttwo = aim.endTrajectory().fresh()
+        TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
                 .setTangent(Math.PI)
                 .splineToLinearHeading(new Pose2d(36, 30, Math.PI/2), Math.PI/2)
-                .lineToY(54);
-
-        TrajectoryActionBuilder end = firsttwo.endTrajectory().fresh()
+                .lineToY(54)
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI);
+
+        TrajectoryActionBuilder home = row1.endTrajectory().fresh()
+                .setTangent(-Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2);
+
 
 
         waitForStart();
@@ -207,18 +210,16 @@ public class Red6BallFar extends LinearOpMode {
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
-                        shoot.shooterOff(),
                         intake.spinIn(),
                         intake.transSpinIn(),
-                        firsttwo.build(),
-                        end.build(),
+                        row1.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
-                        shoot.shooterOn(),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
-                        shoot.shooterOff()
+                        shoot.shooterOff(),
+                        home.build()
                         /*
                         intake.spinIn(),
                         intake.transSpinIn(),

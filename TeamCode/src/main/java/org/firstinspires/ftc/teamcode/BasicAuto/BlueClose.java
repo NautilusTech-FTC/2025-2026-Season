@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name="Blue Close", group="Drive autos")
+@Autonomous(name="BLUE Close", group="Drive autos")
 public class BlueClose extends LinearOpMode {
     public void runOpMode() {
         Pose2d initialPose = new Pose2d(-51, -49.5, Math.toRadians(53));
