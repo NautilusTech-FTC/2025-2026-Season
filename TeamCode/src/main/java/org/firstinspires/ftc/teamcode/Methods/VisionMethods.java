@@ -26,8 +26,8 @@ public class VisionMethods {
 
 
     public static double divisor = 40;
-    public static double blueOffset = 0;
-    public static double redOffset = -2;
+    public static double blueOffset = -4;
+    public static double redOffset = 0;
 
 
 

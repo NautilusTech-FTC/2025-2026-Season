@@ -21,16 +21,18 @@ import java.util.List;
 
 public class MainTeleOp extends OpMode {
 
+    //Methods:
     DrivingMethods Drive = new DrivingMethods();
     IntakeMethods Intake = new IntakeMethods();
     ShooterMethods Shooter = new ShooterMethods();
     TransferMethods Transfer = new TransferMethods();
+    TransferMethods.DetectedColor detectedColor;
     LEDMethods LED = new LEDMethods();
     VisionMethods Vision = new VisionMethods();
 
-    double ctrlLX;
-    double ctrlLY;
-    double ctrlRX;
+    //Control variables:
+    //These contain controller inputs
+    double ctrlLX, ctrlLY, ctrlRX;
     double ctrlRTrig;
     boolean ctrlHome;
     boolean ctrlTransSpinner;
@@ -39,31 +41,29 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStopShootMotor;
     boolean ctrlStartShootMotorS;
     boolean ctrlStartShootMotorL;
+
+    //Shooter timing variables:
     double spoonRunTime;
     int spoonPhase;
-    double targetSpeed;
     double runtime;
     double spoontime;
     double shooterSpeed;
     boolean shooterEnable;
 
-
-    boolean driverReady = false;
     int teamColor = 0;
     boolean ctrlTeamSelectLeft = false;
     boolean ctrlTeamSelectRight = false;
-    boolean ctrlTeamSelectConfirm = false;
     boolean ctrlAutoAimToggle;
     boolean autoAimToggle;
     boolean autoAim = false;
     double correctionValue;
 
-
     //Config variables:
-    //These are static so that they can be configured in the driver station app
+    //These are static so that they can be configured
     public static double strafeFix = 1.1;
     public static double ShooterVelocity = 1600;
 
+    //Variables for performance tracking:
     int performanceCycles = 0;
     double lastTime;
     double peakCycle = 0;
@@ -99,9 +99,9 @@ public class MainTeleOp extends OpMode {
         intake_Transfer();
         robotCentricDrive();
 
-        Transfer.getDetectedColor(telemetry);
-
-        telemetry.addData("Distance: ", Transfer.distance);
+        detectedColor = Transfer.getDetectedColor(telemetry);
+        telemetry.addData("Color: ", detectedColor);
+        //telemetry.addData("Distance: ", Transfer.distance);
     }
 
     public void performanceTracking() {
@@ -116,7 +116,7 @@ public class MainTeleOp extends OpMode {
     }
 
     public void senseVars() {
-        //INFO FOR OTHER PROGRAMMERS: to optimise reads, we are repurposing this function to do BULK READS. Please try not to read sensors anywhere else in the code.
+        //INFO FOR OTHER PROGRAMMERS: to optimise reads, we are using this function to do BULK READS. Please try not to read sensors anywhere else in the code.
         ctrlLX = gamepad1.left_stick_x; //Robot move X
         ctrlLY = gamepad1.left_stick_y; //Robot move Y
         ctrlRX = gamepad1.right_stick_x; //Robot rotation
@@ -128,14 +128,13 @@ public class MainTeleOp extends OpMode {
         ctrlStopShootMotor = gamepad2.b; //Stop shooter spinning
         ctrlStartShootMotorS = gamepad2.x; // Short range motor
         ctrlStartShootMotorL = gamepad2.a; // Long range motor
-        ctrlTeamSelectLeft = gamepad2.dpad_left;
-        ctrlTeamSelectRight = gamepad2.dpad_right;
-        ctrlTeamSelectConfirm = gamepad2.dpad_up;
+        ctrlTeamSelectLeft = gamepad1.dpad_left;
+        ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
-        Transfer.distance = Transfer.distanceSensor.getDistance(DistanceUnit.CM);
+        //Transfer.distance = Transfer.distanceSensor.getDistance(DistanceUnit.CM);
     }
 
     /*
@@ -145,24 +144,14 @@ public class MainTeleOp extends OpMode {
     */
 
     public void robotCentricDrive() {
-
-        if (!driverReady) {
-            telemetry.addLine("Please select a team:");
-            telemetry.addLine("Blue <- -> Red");
-            if (ctrlTeamSelectLeft) {
-                teamColor = 0;
-            } else if (ctrlTeamSelectRight) {
-                teamColor = 1;
-            }
-
-            if (teamColor == 1) {telemetry.addLine("Current team: Red");}
-            else {telemetry.addLine("Current team: Blue");}
-
-            telemetry.addLine("Press start to confirm");
-            if (ctrlTeamSelectConfirm) {
-                driverReady = true;
-            }
+        
+        if (ctrlTeamSelectLeft) {
+            teamColor = 0;
+        } else if (ctrlTeamSelectRight) {
+            teamColor = 1;
         }
+        if (teamColor == 1) {telemetry.addLine("Current team: Red");}
+        else {telemetry.addLine("Current team: Blue");}
 
         if (ctrlAutoAimToggle & autoAimToggle) {
             autoAimToggle = false;
@@ -198,19 +187,21 @@ public class MainTeleOp extends OpMode {
     }
 
     public void shoot() {
+        shooterSpeed = Shooter.velocity;
+
         spoontime = runtime-spoonRunTime;
-        if (ctrlSpoon & (spoonPhase == 0)) {
+        if ((ctrlSpoon & (spoonPhase == 0)) & ((shooterSpeed > shooterSpeed - 50) & (shooterSpeed < shooterSpeed + 25))) {
             spoonRunTime = runtime;
             spoonPhase = 1;
-            Transfer.spoonPos(0.85); //spoon up
+            Transfer.spoonPos(0.84); //spoon up
         }
 
-        if ((spoontime > 0.1) & (spoonPhase == 1)) {
+        if ((spoontime > 0.15) & (spoonPhase == 1)) {
             Transfer.spoonPos(0.97); //spoon down
             spoonPhase++;
         }
 
-        if (spoontime > 0.45) {
+        if (spoontime > 0.3) {
             spoonPhase = 0;
         }
 
@@ -227,18 +218,13 @@ public class MainTeleOp extends OpMode {
             shooterEnable = false;
         }
 
-        shooterSpeed = Shooter.getSpeed();
 
         if(shooterEnable & shooterSpeed < ShooterVelocity-75) {
+            LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
             Shooter.motorPower(1);
         } else if (shooterEnable) {
-            Shooter.motorVelocity(ShooterVelocity);
-        }
-
-        if (shooterSpeed >= 1480) {
-            LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
-        } else {
             LED.redToGreen(0.1);
+            Shooter.motorVelocity(ShooterVelocity);
         }
 
         telemetry.addData("Shooter Speed: ",shooterSpeed);

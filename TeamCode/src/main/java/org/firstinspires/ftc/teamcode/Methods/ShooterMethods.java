@@ -28,10 +28,6 @@ public class ShooterMethods {
         shooterMotor.setVelocity(vel);
     }
 
-    public double getSpeed() {
-        return(velocity);
-    }
-
     public double getPos() {
         return (position);
     }
