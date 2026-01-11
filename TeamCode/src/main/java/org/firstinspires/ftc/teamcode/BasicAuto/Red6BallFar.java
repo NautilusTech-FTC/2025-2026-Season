@@ -9,7 +9,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,10 +23,10 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 @Config
 @Autonomous
 
-public class ShootPreloadRedFar extends LinearOpMode {
+public class Red6BallFar extends LinearOpMode {
     public static int shootPosX = 55;
     public static double shootAngle = 2.8;
-    public static double shootVelocity = 1550;
+    public static double shootVelocity = 1575;
 
 
     public static class Intake {
@@ -147,12 +146,12 @@ public class ShootPreloadRedFar extends LinearOpMode {
     }
 
     public static class Combined{
-        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot shoot;
-        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake intake;
+        Blue6BallFar.Shoot shoot;
+        Blue6BallFar.Intake intake;
 
         public Combined(HardwareMap hardwareMap) {
-            shoot = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot(hardwareMap);
-            intake = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake(hardwareMap);
+            shoot = new Blue6BallFar.Shoot(hardwareMap);
+            intake = new Blue6BallFar.Intake(hardwareMap);
         }
 
         public SequentialAction shoot1 () {
@@ -170,30 +169,30 @@ public class ShootPreloadRedFar extends LinearOpMode {
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot shoot = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Shoot(hardwareMap);
-        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake intake = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Intake(hardwareMap);
-        org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Combined combined = new org.firstinspires.ftc.teamcode.BasicAuto.ShootPreloadBlueFar.Combined(hardwareMap);
+        Blue6BallFar.Shoot shoot = new Blue6BallFar.Shoot(hardwareMap);
+        Blue6BallFar.Intake intake = new Blue6BallFar.Intake(hardwareMap);
+        Blue6BallFar.Combined combined = new Blue6BallFar.Combined(hardwareMap);
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
+        /*TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
                 .turnTo(Math.PI/2)
                 .splineToConstantHeading(new Vector2d(61, 60), Math.PI/2);
 
         TrajectoryActionBuilder getaway = drive.actionBuilder(new Pose2d(61, 60, Math.PI/2))
                 .setTangent((Math.PI*2)-1.85)
-                .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3);
+                .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3); */
 
         TrajectoryActionBuilder firsttwo = aim.endTrajectory().fresh()
                 .setTangent(Math.PI)
                 .splineToLinearHeading(new Pose2d(36, 30, Math.PI/2), Math.PI/2)
-                .lineToY(50);
+                .lineToY(54);
 
-        TrajectoryActionBuilder end = drive.actionBuilder(new Pose2d(36, 50, Math.PI/2))
+        TrajectoryActionBuilder end = firsttwo.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, 15, 2.85), 2.85-Math.PI);
+                .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI);
 
 
         waitForStart();

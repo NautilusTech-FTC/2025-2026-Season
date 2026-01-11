@@ -5,12 +5,10 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,10 +22,10 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous
 @Config
-public class ShootPreloadBlueFar extends LinearOpMode {
+public class Blue6BallFar extends LinearOpMode {
     public static int shootPosX = 55;
     public static double shootAngle = 3.6;
-    public static double shootVelocity = 1550;
+    public static double shootVelocity = 1575;
 
 
     public static class Intake {
@@ -178,13 +176,25 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                 .lineToX(shootPosX)
                 .turnTo(shootAngle);
 
-        TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
+        /*TrajectoryActionBuilder theivery = aim.endTrajectory().fresh()
                 .turnTo(Math.PI/2)
-                .splineToConstantHeading(new Vector2d(61, 61), Math.PI/2);
+                .splineToConstantHeading(new Vector2d(61, 60), Math.PI/2);
 
-        TrajectoryActionBuilder getaway = theivery.endTrajectory().fresh()
-                .setTangent(-1.85)
-                .splineToLinearHeading(new Pose2d(55, 15, 2.85), -Math.PI/2);
+        TrajectoryActionBuilder getaway = drive.actionBuilder(new Pose2d(61, 60, Math.PI/2))
+                .setTangent((Math.PI*2)-1.85)
+                .splineToLinearHeading(new Pose2d(shootPosX, 15, shootAngle), (Math.PI/2)*3); */
+
+        TrajectoryActionBuilder firsttwo = aim.endTrajectory().fresh()
+                .setTangent(Math.PI)
+                .splineToLinearHeading(new Pose2d(36, -30, -Math.PI/2), -Math.PI/2)
+                .lineToY(-54);
+
+        TrajectoryActionBuilder end = firsttwo.endTrajectory().fresh()
+                .setTangent(Math.PI/2)
+                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle-Math.PI);
+
+
+
 
         waitForStart();
 
@@ -201,6 +211,18 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                         shoot.shooterOff(),
                         intake.spinIn(),
                         intake.transSpinIn(),
+                        firsttwo.build(),
+                        end.build(),
+                        intake.spinStop(),
+                        intake.transSpinStop(),
+                        shoot.shooterOn(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        shoot.shooterOff()
+                        /*
+                        intake.spinIn(),
+                        intake.transSpinIn(),
                         theivery.build(),
                         new SleepAction(3),
                         getaway.build(),
@@ -210,7 +232,7 @@ public class ShootPreloadBlueFar extends LinearOpMode {
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
-                        shoot.shooterOff()
+                        shoot.shooterOff()*/
                 )
         );
     }
