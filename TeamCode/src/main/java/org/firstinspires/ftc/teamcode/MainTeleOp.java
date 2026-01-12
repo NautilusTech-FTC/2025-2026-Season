@@ -50,6 +50,7 @@ public class MainTeleOp extends OpMode {
     double shooterSpeed;
     boolean shooterEnable;
 
+    //Misc.:
     int teamColor = 0;
     boolean ctrlTeamSelectLeft = false;
     boolean ctrlTeamSelectRight = false;
@@ -57,6 +58,7 @@ public class MainTeleOp extends OpMode {
     boolean autoAimToggle;
     boolean autoAim = false;
     double correctionValue;
+    double lightVal = 0;
 
     //Config variables:
     //These are static so that they can be configured
@@ -67,7 +69,6 @@ public class MainTeleOp extends OpMode {
     int performanceCycles = 0;
     double lastTime;
     double peakCycle = 0;
-
 
     public void init() {
         // Allows the telemetry variable to send data to both DS and FTC dashboard
@@ -100,7 +101,18 @@ public class MainTeleOp extends OpMode {
         robotCentricDrive();
 
         detectedColor = Transfer.getDetectedColor(telemetry);
+
         telemetry.addData("Color: ", detectedColor);
+
+        if (detectedColor == TransferMethods.DetectedColor.PURPLE) {
+            lightVal = 1;
+        } else if (detectedColor == TransferMethods.DetectedColor.GREEN) {
+            lightVal = 0.5;
+        } else {
+            lightVal = 0;
+        }
+
+        LED.ballColor(lightVal);
         //telemetry.addData("Distance: ", Transfer.distance);
     }
 
@@ -222,9 +234,11 @@ public class MainTeleOp extends OpMode {
         if(shooterEnable & shooterSpeed < ShooterVelocity-75) {
             LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
             Shooter.motorPower(1);
-        } else if (shooterEnable) {
+        } else {
             LED.redToGreen(0.1);
-            Shooter.motorVelocity(ShooterVelocity);
+            if (shooterEnable) {
+                Shooter.motorVelocity(ShooterVelocity);
+            }
         }
 
         telemetry.addData("Shooter Speed: ",shooterSpeed);

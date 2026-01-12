@@ -9,30 +9,41 @@ import org.firstinspires.ftc.teamcode.ThreeDeadWheelLocalizer;
 
 @Config
 public class LEDMethods {
-    Servo led;
-
+    Servo led0;
+    Servo led1;
 
     public static double lowestColor = 0.28;
     public static double highestColor = 0.61;
 
-
-
+    public static double purpleBallColor = 0.722;
+    public static double greenBallColor = 0.5;
 
     public void init(HardwareMap hardwareMap) {
-        led = hardwareMap.get(Servo.class, "LED");
+        led0 = hardwareMap.get(Servo.class, "LED0");
+        led1 = hardwareMap.get(Servo.class, "LED1");
     }
 
     public void color(double color) {
-        led.setPosition(color);
+        led0.setPosition(color);
     }
 
     public void redToGreen(double val) {
         //led.setPosition(Math.random());
         if (val >= 1) {
-            led.setPosition(highestColor);
+            led0.setPosition(highestColor);
         } else {
-            led.setPosition(lowestColor);
+            led0.setPosition(lowestColor+(val*(highestColor-lowestColor)));
         }
 
+    }
+
+    public void ballColor(double val) {
+        if (val == 1) {
+            led1.setPosition(purpleBallColor);
+        } else if (val == 0.5) {
+            led1.setPosition(greenBallColor);
+        } else {
+            led1.setPosition(0.0); // 0.0 = LED is Off.
+        }
     }
 }
