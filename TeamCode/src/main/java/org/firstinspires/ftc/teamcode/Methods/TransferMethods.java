@@ -17,10 +17,6 @@ public class TransferMethods {
     Servo spoonServo;
 
     public NormalizedColorSensor colorSensor;
-
-    /* public DistanceSensor distanceSensor;
-    public double distance; */
-
     public enum DetectedColor {
         PURPLE,
         GREEN,
@@ -32,8 +28,6 @@ public class TransferMethods {
         spoonServo = hardwareMap.get(Servo.class, "SpoonServo");
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "DistanceSensor");
         colorSensor.setGain(15);
-
-        //distanceSensor = hardwareMap.get(DistanceSensor.class, "DistanceSensor");
     }
 
     public void servoPower (double power) {
@@ -53,9 +47,9 @@ public class TransferMethods {
         blue = colors.blue / colors.alpha;
         green = colors.green / colors.alpha;
 
-        telemetry.addData("Red",red);
+        /* telemetry.addData("Red",red);
         telemetry.addData("Blue",blue);
-        telemetry.addData("Green",green);
+        telemetry.addData("Green",green); */
 
         /* Norm: .12, .14, .17
         Purple: .08, .16, .11
