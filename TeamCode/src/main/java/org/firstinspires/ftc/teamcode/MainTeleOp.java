@@ -5,8 +5,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
@@ -59,6 +61,16 @@ public class MainTeleOp extends OpMode {
     boolean autoAim = false;
     double correctionValue;
     double lightVal = 0;
+
+    // PIDF:
+    public double highShooterVelocity = 1650;
+    public double lowShooterVelocity = 1450;
+    double curveTargetVelocity = highShooterVelocity;
+    public double F = 0;
+    public double P = 0;
+    double[] stepSizes = {10, 1, 0.1, 0.01, 0.001, 0.0001};
+    int stepIndex = 1;
+    double error;
 
     //Config variables:
     //These are static so that they can be configured
@@ -113,7 +125,35 @@ public class MainTeleOp extends OpMode {
         }
 
         LED.ballColor(lightVal);
-        //telemetry.addData("Distance: ", Transfer.distance);
+
+        // PIDF:
+        if (gamepad1.leftBumperWasPressed()) {
+            if(curveTargetVelocity == highShooterVelocity) {
+                curveTargetVelocity = lowShooterVelocity;
+            } else { curveTargetVelocity = highShooterVelocity; }
+        }
+
+        if (gamepad1.rightBumperWasPressed()) {
+            stepIndex = (stepIndex + 1) % stepSizes.length;
+        }
+
+        if (gamepad1.xWasPressed()) {
+            F -= stepSizes[stepIndex];
+        }
+        if (gamepad1.bWasPressed()) {
+            F += stepSizes[stepIndex];
+        }
+
+        if (gamepad1.yWasPressed()) {
+            P += stepSizes[stepIndex];
+        }
+        if (gamepad1.aWasPressed()) {
+            P -= stepSizes[stepIndex];
+        }
+
+        // Set new PIDF coefficients:
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,0,0,F);
+        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
     }
 
     public void performanceTracking() {
@@ -146,7 +186,6 @@ public class MainTeleOp extends OpMode {
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
-        //Transfer.distance = Transfer.distanceSensor.getDistance(DistanceUnit.CM);
     }
 
     /*
@@ -200,6 +239,7 @@ public class MainTeleOp extends OpMode {
 
     public void shoot() {
         shooterSpeed = Shooter.velocity;
+        error = curveTargetVelocity - shooterSpeed; // PIDF
 
         spoontime = runtime-spoonRunTime;
         if ((ctrlSpoon & (spoonPhase == 0)) & ((shooterSpeed > shooterSpeed - 50) & (shooterSpeed < shooterSpeed + 25))) {
@@ -237,10 +277,18 @@ public class MainTeleOp extends OpMode {
         } else {
             LED.redToGreen(0.1);
             if (shooterEnable) {
-                Shooter.motorVelocity(ShooterVelocity);
+                Shooter.motorVelocity(curveTargetVelocity);
             }
         }
 
         telemetry.addData("Shooter Speed: ",shooterSpeed);
+
+        // PIDF Telemetry:
+        telemetry.addData("Target Speed: ", curveTargetVelocity);
+        telemetry.addData("Error: ", "%.2f", error);
+        telemetry.addLine("-------------------------------");
+        telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
+        telemetry.addData("Tuning F: ", "%.4f (x/b)", F);
+        telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);
     }
 }
