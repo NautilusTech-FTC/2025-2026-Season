@@ -238,6 +238,6 @@ public class MainTeleOp extends OpMode {
             }
         }
 
-        telemetry.addData("Shooter Speed: ",shooterSpeed); // Please work.
+        telemetry.addData("Shooter Speed: ",shooterSpeed);
     }
 }
