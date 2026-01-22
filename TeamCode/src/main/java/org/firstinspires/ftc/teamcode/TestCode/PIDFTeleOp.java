@@ -62,7 +62,7 @@ public class PIDFTeleOp extends OpMode {
     double correctionValue;
     double lightVal = 0;
 
-    // PIDF Variables:
+    // PIDF:
     public double highShooterVelocity = 1650;
     public double lowShooterVelocity = 1450;
     double curveTargetVelocity = highShooterVelocity;
