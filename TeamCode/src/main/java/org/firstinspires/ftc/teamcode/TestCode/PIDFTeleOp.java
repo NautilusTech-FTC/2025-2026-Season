@@ -66,8 +66,10 @@ public class PIDFTeleOp extends OpMode {
     public double highShooterVelocity = 1620;
     public double lowShooterVelocity = 1350;
     double curveTargetVelocity = highShooterVelocity;
+    public double P = 293;
+    public double I = 0;
+    public double D = 0.5;
     public double F = 15.57;
-    public double P = 162;
     double[] stepSizes = {10, 1, 0.1, 0.01, 0.001, 0.0001};
     int stepIndex = 1;
     double error;
@@ -137,10 +139,10 @@ public class PIDFTeleOp extends OpMode {
         }
 
         if (gamepad1.xWasPressed()) {
-            F -= stepSizes[stepIndex];
+            D -= stepSizes[stepIndex];
         }
         if (gamepad1.bWasPressed()) {
-            F += stepSizes[stepIndex];
+            D += stepSizes[stepIndex];
         }
 
         if (gamepad1.yWasPressed()) {
@@ -148,10 +150,10 @@ public class PIDFTeleOp extends OpMode {
         }
         if (gamepad1.aWasPressed()) {
             P -= stepSizes[stepIndex];
-        } */
+        }*/
 
         // Set new PIDF coefficients:
-        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,0,0,F);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
         Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
     }
 
@@ -285,9 +287,9 @@ public class PIDFTeleOp extends OpMode {
         // PIDF Telemetry:
         telemetry.addData("Target Speed: ", curveTargetVelocity);
         telemetry.addData("Error: ", "%.2f", error);
-        telemetry.addLine("-------------------------------");
-        /*telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
-        telemetry.addData("Tuning F: ", "%.4f (x/b)", F); // 14.473
+        /*telemetry.addLine("-------------------------------");
+        telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
+        telemetry.addData("Tuning D: ", "%.4f (x/b)", D); // 14.473
         telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);*/
     }
 }
