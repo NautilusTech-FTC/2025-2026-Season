@@ -51,13 +51,13 @@ public class TransferMethods {
         telemetry.addData("Blue",blue);
         telemetry.addData("Green",green); */
 
-        /* Norm: .12, .14, .17
-        Purple: .08, .16, .11
-        Green: .05, .13, .17 */
+        /* Norm: .18, .20, .25
+        Purple: .10-.12, .17-.22, .12-.14
+        Green: .05-.06, .13-.16, .17-.22 */
 
-        if (red < 0.1 && blue > 0.15 && green < 0.15) {
+        if (red < 0.13 && blue > 0.15 && green < 0.15) {
             return DetectedColor.PURPLE;
-        } else if (red < 0.1 && blue < 0.15 && green > 0.15) {
+        } else if (red < 0.1 && blue < 0.2 && green > 0.15) {
             return DetectedColor.GREEN;
         } else return DetectedColor.UNKNOWN;
     }

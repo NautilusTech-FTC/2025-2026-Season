@@ -63,11 +63,11 @@ public class PIDFTeleOp extends OpMode {
     double lightVal = 0;
 
     // PIDF:
-    public double highShooterVelocity = 1650;
-    public double lowShooterVelocity = 1450;
+    public double highShooterVelocity = 1620;
+    public double lowShooterVelocity = 1350;
     double curveTargetVelocity = highShooterVelocity;
-    public double F = 0;
-    public double P = 0;
+    public double F = 15.57;
+    public double P = 162;
     double[] stepSizes = {10, 1, 0.1, 0.01, 0.001, 0.0001};
     int stepIndex = 1;
     double error;
@@ -125,7 +125,7 @@ public class PIDFTeleOp extends OpMode {
 
         LED.ballColor(lightVal);
 
-        // PIDF:
+        /* PIDF:
         if (gamepad1.leftBumperWasPressed()) {
             if(curveTargetVelocity == highShooterVelocity) {
                 curveTargetVelocity = lowShooterVelocity;
@@ -148,7 +148,7 @@ public class PIDFTeleOp extends OpMode {
         }
         if (gamepad1.aWasPressed()) {
             P -= stepSizes[stepIndex];
-        }
+        } */
 
         // Set new PIDF coefficients:
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,0,0,F);
@@ -270,7 +270,7 @@ public class PIDFTeleOp extends OpMode {
         }
 
 
-        if(shooterEnable & shooterSpeed < curveTargetVelocity-75) {
+        if(shooterEnable && shooterSpeed < curveTargetVelocity-75) {
             LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
             Shooter.motorPower(1);
         } else {
@@ -286,8 +286,8 @@ public class PIDFTeleOp extends OpMode {
         telemetry.addData("Target Speed: ", curveTargetVelocity);
         telemetry.addData("Error: ", "%.2f", error);
         telemetry.addLine("-------------------------------");
-        telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
-        telemetry.addData("Tuning F: ", "%.4f (x/b)", F);
-        telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);
+        /*telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
+        telemetry.addData("Tuning F: ", "%.4f (x/b)", F); // 14.473
+        telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);*/
     }
 }
