@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,12 +15,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class AutoMethods {
     public static class Intake {
         private DcMotor motor;
-        private CRServo servo;
+        private CRServo transServo;
 
         public Intake (HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotor.class, "IntakeMotor");
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            servo = hardwareMap.get(CRServo.class, "TransferServo");
+            transServo = hardwareMap.get(CRServo.class, "TransferServo");
         }
         public Action spinIn () {
             return new Action() {
@@ -51,7 +53,8 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(-1);
+                    transServo.setPower(-1);
+                    packet.addLine("TransSpinIn");
                     return false;
                 }
             };
@@ -60,7 +63,7 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(1);
+                    transServo.setPower(1);
                     return false;
                 }
             };
@@ -69,12 +72,13 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPower(0);
+                    transServo.setPower(0);
                     return false;
                 }
             };
         }
     }
+
     public static class Shoot {
         Servo servo;
         DcMotorEx motor;
@@ -89,7 +93,8 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(0.8);
+                    servo.setPosition(0.84);
+                    packet.addLine("SpoonUp");
                     return false;
                 }
             };
@@ -98,17 +103,18 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    servo.setPosition(1);
+                    servo.setPosition(0.97);
+                    packet.addLine("SpoonDown");
                     return false;
                 }
             };
         }
-        public Action shooterOn () {
+        public Action shooterOn (double shooterspeed) {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    motor.setPower(0.75);
-                    return (motor.getVelocity() < 1450);
+                    motor.setVelocity(shooterspeed);
+                    return (motor.getVelocity() < shooterspeed-50 && motor.getVelocity() > shooterspeed+25);
                 }
             };
         }
@@ -120,6 +126,27 @@ public class AutoMethods {
                     return false;
                 }
             };
+        }
+    }
+
+    public static class Combined{
+        Shoot shoot;
+        Intake intake;
+
+        public Combined(HardwareMap hardwareMap) {
+            shoot = new Shoot(hardwareMap);
+            intake = new Intake(hardwareMap);
+        }
+
+        public SequentialAction shoot1 () {
+            return new SequentialAction(
+                    shoot.holySpoonUp(),
+                    new SleepAction(0.25),
+                    shoot.holySpoonDown(),
+                    intake.transSpinIn(),
+                    new SleepAction(0.55),
+                    intake.transSpinStop(),
+                    intake.spinStop());
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.TestCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -32,6 +33,7 @@ public class TestProgram extends OpMode {
 */
 
 @TeleOp()
+@Disabled
 public class TestProgram extends OpMode {
     @Override
     public void init() {

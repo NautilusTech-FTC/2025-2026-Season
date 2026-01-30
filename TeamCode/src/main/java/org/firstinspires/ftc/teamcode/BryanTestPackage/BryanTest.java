@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.BryanTestPackage;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 
 @TeleOp
+@Disabled
 public class BryanTest extends OpMode {
     DcMotor IntakeSlowMotor;
     DcMotor MainIntakeMotor;

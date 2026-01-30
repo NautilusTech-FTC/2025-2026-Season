@@ -4,10 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.AccelConstraint;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
-import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -15,6 +13,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -27,14 +26,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-import java.util.Arrays;
 
-@Autonomous(name="BLUE 6 Ball Far", group="6 Ball Autos")
+@Autonomous(name="BLUE 12 Ball Far", group="12 Ball Autos")
 @Config
-public class Blue6BallFar extends LinearOpMode {
+public class Blue12BallFar extends LinearOpMode {
     public static double shootAngle = 3.55;
-    public static double x1 = 41;
+    public static double x1 = 42;
+    public static double x2 = 10;
+    public static double x3 = -12;
     public static double y1 = -64;
+    public static double y2 = -55;
+    public static double y3 = -55;
 
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(62, -15, Math.PI);
@@ -43,16 +45,29 @@ public class Blue6BallFar extends LinearOpMode {
         AutoMethods.Intake intake = new AutoMethods.Intake(hardwareMap);
         AutoMethods.Combined combined = new AutoMethods.Combined(hardwareMap);
 
+
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI)
                 .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle);
 
         TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
                 .setTangent(shootAngle)
-                .splineToSplineHeading(new Pose2d(x1, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y1, new TranslationalVelConstraint(25.0))
+                .splineTo(new Vector2d(x1, y1), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .setTangent(Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+        TrajectoryActionBuilder row2 = aim.endTrajectory().fresh()
+                .setTangent(Math.PI) //Start 9 ball test
+                .splineToSplineHeading(new Pose2d(x2, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(y2)
+                .setTangent(Math.PI/2)
+                .splineTo(new Vector2d(55, -15), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+        TrajectoryActionBuilder row3 = aim.endTrajectory().fresh()
+                .setTangent(shootAngle) //Start 12 ball test!!!!!
+                .splineTo(new Vector2d(x3, y3), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(Math.PI/2)
+                .splineTo(new Vector2d(55, -15), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75)); //End 12 ball test!!!!!!!
 
         TrajectoryActionBuilder home = row1.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
@@ -73,7 +88,6 @@ public class Blue6BallFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 aim.build()
                         ),
-                        new SleepAction(1),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
@@ -83,6 +97,24 @@ public class Blue6BallFar extends LinearOpMode {
                         row1.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup row 2 & shoot
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        row2.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup row 3 & shoot
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        row3.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),

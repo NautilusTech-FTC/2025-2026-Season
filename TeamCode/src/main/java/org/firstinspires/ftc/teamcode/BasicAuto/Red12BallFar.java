@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,12 +25,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 
-@Autonomous(name="RED 6 Ball Far", group="6 Ball Autos")
+@Autonomous(name="RED 12 Ball Far", group="12 Ball Autos")
 @Config
-public class Red6BallFar extends LinearOpMode {
+public class Red12BallFar extends LinearOpMode {
     public static double shootAngle = 2.75;
     public static double x1 = 41;
-    public static double x2 = 15;
+    public static double x2 = 14;
     public static double y1 = 64;
     public static double y2 = 64;
     public static double shootSpeed = 1550;
@@ -52,9 +53,22 @@ public class Red6BallFar extends LinearOpMode {
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40));
 
+        TrajectoryActionBuilder row2 = aim.endTrajectory().fresh()
+                .setTangent(Math.PI) //Start 9 ball test
+                .splineToSplineHeading(new Pose2d(x2, 34, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(y2, new TranslationalVelConstraint(25.0))
+                .setTangent(-Math.PI/2)
+                .splineTo(new Vector2d(55, 15), shootAngle-Math.PI, new TranslationalVelConstraint(40));
+
+        TrajectoryActionBuilder row3 = aim.endTrajectory().fresh()
+                .setTangent(3.6) //Start 12 ball test!!!!!
+                .splineTo(new Vector2d(-12, -54), -Math.PI/2)
+                .setTangent(Math.PI/2)
+                .splineToLinearHeading(new Pose2d(55, -15, 3.6), 3.6-Math.PI);
+
         TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
-                .splineToLinearHeading(new Pose2d(60, 35, Math.PI), -Math.PI/2);
+                .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2);
 
 
 
@@ -80,6 +94,24 @@ public class Red6BallFar extends LinearOpMode {
                         row1.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup row 2 & shoot
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        row2.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup row 3 & shoot
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        row3.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),

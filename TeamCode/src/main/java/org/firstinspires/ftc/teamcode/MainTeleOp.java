@@ -175,6 +175,12 @@ public class MainTeleOp extends OpMode {
         } else {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
+
+        if (autoAim) {
+            LED.redToGreen(1);
+        } else {
+            LED.redToGreen(0);
+        }
     }
 
     public void intake_Transfer() {
@@ -229,10 +235,8 @@ public class MainTeleOp extends OpMode {
 
 
         if(shooterEnable & shooterSpeed < ShooterVelocity-75) {
-            LED.redToGreen(1); // Makes light blue only if shooter is between the sweet spot speed range.
             Shooter.motorPower(1);
         } else {
-            LED.redToGreen(0.1);
             if (shooterEnable) {
                 Shooter.motorVelocity(ShooterVelocity);
             }

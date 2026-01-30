@@ -12,8 +12,8 @@ public class LEDMethods {
     Servo led0;
     Servo led1;
 
-    public static double lowestColor = 0.28;
-    public static double highestColor = 0.61;
+    public static double lowestColor = 0.277;
+    public static double highestColor = 0.5;
 
     public static double purpleBallColor = 0.722;
     public static double greenBallColor = 0.5;
@@ -29,10 +29,10 @@ public class LEDMethods {
 
     public void redToGreen(double val) {
         //led.setPosition(Math.random());
-        if (val >= 1) {
+        if (val == 1) {
             led0.setPosition(highestColor);
         } else {
-            led0.setPosition(lowestColor+(val*(highestColor-lowestColor)));
+            led0.setPosition(lowestColor);
         }
 
     }

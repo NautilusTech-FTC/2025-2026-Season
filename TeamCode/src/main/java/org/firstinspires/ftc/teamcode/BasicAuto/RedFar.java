@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.BasicAuto;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,8 +19,9 @@ public class RedFar extends LinearOpMode {
         Pose2d initialPose = new Pose2d(62, 15, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
-        TrajectoryActionBuilder action = drive.actionBuilder(initialPose)
-                .lineToX(38);
+        TrajectoryActionBuilder home = drive.actionBuilder(initialPose)
+                .setTangent(-Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, 35, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
 
         waitForStart();
@@ -27,7 +30,7 @@ public class RedFar extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-                        action.build()
+                        home.build()
                 )
         );
     }
