@@ -246,6 +246,9 @@ public class PIDFTeleOp extends OpMode {
             shooterEnable = false;
         }
 
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
+        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
         telemetry.addData("Shooter Speed: ",shooterSpeed);
 
         // PIDF Telemetry:
@@ -255,7 +258,6 @@ public class PIDFTeleOp extends OpMode {
         telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
         telemetry.addData("Tuning D: ", "%.4f (x/b)", D);
         telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);*/
-
 
         /* PIDF:
         if (gamepad1.leftBumperWasPressed()) {
@@ -284,7 +286,7 @@ public class PIDFTeleOp extends OpMode {
 
         // Set new PIDF coefficients:
 
-        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
-        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+
     }
 }
