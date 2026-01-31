@@ -112,49 +112,6 @@ public class PIDFTeleOp extends OpMode {
         shoot();
         intake_Transfer();
         robotCentricDrive();
-
-        detectedColor = Transfer.getDetectedColor(telemetry);
-
-        telemetry.addData("Color: ", detectedColor);
-
-        if (detectedColor == TransferMethods.DetectedColor.PURPLE) {
-            lightVal = 1;
-        } else if (detectedColor == TransferMethods.DetectedColor.GREEN) {
-            lightVal = 0.5;
-        } else {
-            lightVal = 0;
-        }
-
-        LED.ballColor(lightVal);
-
-        /* PIDF:
-        if (gamepad1.leftBumperWasPressed()) {
-            if(curveTargetVelocity == highShooterVelocity) {
-                curveTargetVelocity = lowShooterVelocity;
-            } else { curveTargetVelocity = highShooterVelocity; }
-        }
-
-        if (gamepad1.rightBumperWasPressed()) {
-            stepIndex = (stepIndex + 1) % stepSizes.length;
-        }
-
-        if (gamepad1.xWasPressed()) {
-            D -= stepSizes[stepIndex];
-        }
-        if (gamepad1.bWasPressed()) {
-            D += stepSizes[stepIndex];
-        }
-
-        if (gamepad1.yWasPressed()) {
-            P += stepSizes[stepIndex];
-        }
-        if (gamepad1.aWasPressed()) {
-            P -= stepSizes[stepIndex];
-        }*/
-
-        // Set new PIDF coefficients:
-        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
-        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
     }
 
     public void performanceTracking() {
@@ -242,6 +199,20 @@ public class PIDFTeleOp extends OpMode {
                 Transfer.servoPower(0.0);
             }
         }
+
+        detectedColor = Transfer.getDetectedColor(telemetry);
+
+        telemetry.addData("Color: ", detectedColor);
+
+        if (detectedColor == TransferMethods.DetectedColor.PURPLE) {
+            lightVal = 1;
+        } else if (detectedColor == TransferMethods.DetectedColor.GREEN) {
+            lightVal = 0.5;
+        } else {
+            lightVal = 0;
+        }
+
+        LED.ballColor(lightVal);
     }
 
     public void shoot() {
@@ -284,5 +255,36 @@ public class PIDFTeleOp extends OpMode {
         telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
         telemetry.addData("Tuning D: ", "%.4f (x/b)", D);
         telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);*/
+
+
+        /* PIDF:
+        if (gamepad1.leftBumperWasPressed()) {
+            if(curveTargetVelocity == highShooterVelocity) {
+                curveTargetVelocity = lowShooterVelocity;
+            } else { curveTargetVelocity = highShooterVelocity; }
+        }
+
+        if (gamepad1.rightBumperWasPressed()) {
+            stepIndex = (stepIndex + 1) % stepSizes.length;
+        }
+
+        if (gamepad1.xWasPressed()) {
+            D -= stepSizes[stepIndex];
+        }
+        if (gamepad1.bWasPressed()) {
+            D += stepSizes[stepIndex];
+        }
+
+        if (gamepad1.yWasPressed()) {
+            P += stepSizes[stepIndex];
+        }
+        if (gamepad1.aWasPressed()) {
+            P -= stepSizes[stepIndex];
+        }*/
+
+        // Set new PIDF coefficients:
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
+        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
     }
 }
