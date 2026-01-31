@@ -62,7 +62,7 @@ public class Red9BallFar extends LinearOpMode {
 
         TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
-                .splineToLinearHeading(new Pose2d(60, 35, Math.PI), -Math.PI/2);
+                .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2);
 
 
 

@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 @Config
 public class Blue3BallFar extends LinearOpMode {
     public static int shootPosX = 55;
-    public static double shootAngle = 3.6;
+    public static double shootAngle = 3.575;
 
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(62, -15, Math.PI);

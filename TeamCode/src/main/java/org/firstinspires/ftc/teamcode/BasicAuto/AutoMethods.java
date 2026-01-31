@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class AutoMethods {
@@ -83,11 +84,18 @@ public class AutoMethods {
         Servo servo;
         DcMotorEx motor;
 
-        double oldPos;
+        double curveTargetVelocity = 1620;
+        public double P = 293;
+        public double I = 0;
+        public double D = 0.5;
+        public double F = 15.57;
 
         public Shoot(HardwareMap hardwareMap) {
             motor = hardwareMap.get(DcMotorEx.class, "ShooterMotor");
             servo = hardwareMap.get(Servo.class, "SpoonServo");
+
+            PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
+            motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
         }
         public Action holySpoonUp () {
             return new Action() {
@@ -113,8 +121,8 @@ public class AutoMethods {
             return new Action() {
                 @Override
                 public boolean run(@NonNull TelemetryPacket packet) {
-                    motor.setVelocity(shooterspeed);
-                    return (motor.getVelocity() < shooterspeed-50 && motor.getVelocity() > shooterspeed+25);
+                    motor.setVelocity(curveTargetVelocity);
+                    return (motor.getVelocity() < curveTargetVelocity-25 && motor.getVelocity() > curveTargetVelocity+25);
                 }
             };
         }

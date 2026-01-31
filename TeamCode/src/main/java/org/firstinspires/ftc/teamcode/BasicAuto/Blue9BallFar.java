@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 @Autonomous(name="BLUE 9 Ball Far", group="9 Ball Autos")
 @Config
 public class Blue9BallFar extends LinearOpMode {
-    public static double shootAngle = 3.55;
+    public static double shootAngle = 3.575;
     public static double x1 = 41;
     public static double x2 = 15;
     public static double y1 = -64;
