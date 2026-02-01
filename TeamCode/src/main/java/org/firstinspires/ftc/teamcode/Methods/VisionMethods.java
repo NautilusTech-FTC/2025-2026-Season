@@ -25,7 +25,7 @@ public class VisionMethods {
     int target;
 
 
-    public static double divisor = 40;
+    public static double divisor = 35;
     public static double blueOffset = -4;
     public static double redOffset = 0;
 
@@ -89,7 +89,7 @@ public class VisionMethods {
             return(2);
         }
 
-        if (Math.abs(correctionValue) < 0.1) {
+        if (Math.abs(correctionValue) < 0.01) {
             correctionValue = 0;
         } else if (Math.abs(correctionValue) > 1) {
             correctionValue = Math.signum(correctionValue);

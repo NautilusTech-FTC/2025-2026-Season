@@ -17,6 +17,7 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous(name="BLUE 12 Ball Far", group="12 Ball Autos")
 @Config
+@Disabled
 public class Blue12BallFar extends LinearOpMode {
     public static double shootAngle = 3.575;
     public static double x1 = 42;
