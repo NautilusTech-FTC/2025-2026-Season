@@ -19,8 +19,7 @@ import org.firstinspires.ftc.teamcode.Methods.VisionMethods;
 import java.util.List;
 
 @Config
-@TeleOp
-
+@TeleOp(name="PIDFTeleOp", group="Main")
 public class PIDFTeleOp extends OpMode {
 
     //Methods:
