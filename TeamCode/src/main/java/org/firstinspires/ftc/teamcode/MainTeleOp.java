@@ -5,6 +5,8 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
@@ -59,10 +61,18 @@ public class MainTeleOp extends OpMode {
     double correctionValue;
     double lightVal = 0;
 
+    // PIDF:
+    public double highShooterVelocity = 1620;
+    double curveTargetVelocity = highShooterVelocity;
+    public double P = 293;
+    public double I = 0;
+    public double D = 0.5;
+    public double F = 15.57;
+    double error;
+
     //Config variables:
     //These are static so that they can be configured
     public static double strafeFix = 1.1;
-    public static double ShooterVelocity = 1600;
 
     //Variables for performance tracking:
     int performanceCycles = 0;
@@ -98,20 +108,6 @@ public class MainTeleOp extends OpMode {
         shoot();
         intake_Transfer();
         robotCentricDrive();
-
-        detectedColor = Transfer.getDetectedColor(telemetry);
-
-        telemetry.addData("Color: ", detectedColor);
-
-        if (detectedColor == TransferMethods.DetectedColor.PURPLE) {
-            lightVal = 1;
-        } else if (detectedColor == TransferMethods.DetectedColor.GREEN) {
-            lightVal = 0.5;
-        } else {
-            lightVal = 0;
-        }
-
-        LED.ballColor(lightVal);
     }
 
     public void performanceTracking() {
@@ -199,6 +195,20 @@ public class MainTeleOp extends OpMode {
             Transfer.servoPower(0.0);
             }
         }
+
+        detectedColor = Transfer.getDetectedColor(telemetry);
+
+        telemetry.addData("Color: ", detectedColor);
+
+        if (detectedColor == TransferMethods.DetectedColor.PURPLE) {
+            lightVal = 1;
+        } else if (detectedColor == TransferMethods.DetectedColor.GREEN) {
+            lightVal = 0.5;
+        } else {
+            lightVal = 0;
+        }
+
+        LED.ballColor(lightVal);
     }
 
     public void shoot() {
@@ -220,11 +230,9 @@ public class MainTeleOp extends OpMode {
             spoonPhase = 0;
         }
 
-        if (ctrlStartShootMotorS) {
-            shooterEnable = true;
-        }
-
-        if (ctrlStartShootMotorL) {
+        error = curveTargetVelocity - shooterSpeed;
+        if (ctrlStartShootMotorL || ctrlStartShootMotorS) {
+            Shooter.motorVelocity(curveTargetVelocity);
             shooterEnable = true;
         }
 
@@ -233,15 +241,13 @@ public class MainTeleOp extends OpMode {
             shooterEnable = false;
         }
 
-
-        if(shooterEnable & shooterSpeed < ShooterVelocity-75) {
-            Shooter.motorPower(1);
-        } else {
-            if (shooterEnable) {
-                Shooter.motorVelocity(ShooterVelocity);
-            }
-        }
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P,I,D,F);
+        Shooter.shooterMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
         telemetry.addData("Shooter Speed: ",shooterSpeed);
+
+        // PIDF Telemetry:
+        telemetry.addData("Target Speed: ", curveTargetVelocity);
+        telemetry.addData("Error: ", "%.2f", error);
     }
 }

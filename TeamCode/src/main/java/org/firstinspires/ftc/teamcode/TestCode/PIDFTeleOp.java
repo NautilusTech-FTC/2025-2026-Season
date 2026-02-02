@@ -254,12 +254,12 @@ public class PIDFTeleOp extends OpMode {
         // PIDF Telemetry:
         telemetry.addData("Target Speed: ", curveTargetVelocity);
         telemetry.addData("Error: ", "%.2f", error);
-        /*telemetry.addLine("-------------------------------");
+        telemetry.addLine("-------------------------------");
         telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
         telemetry.addData("Tuning D: ", "%.4f (x/b)", D);
-        telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);*/
+        telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);
 
-        /* PIDF:
+        // PIDF:
         if (gamepad1.leftBumperWasPressed()) {
             if(curveTargetVelocity == highShooterVelocity) {
                 curveTargetVelocity = lowShooterVelocity;
@@ -282,11 +282,6 @@ public class PIDFTeleOp extends OpMode {
         }
         if (gamepad1.aWasPressed()) {
             P -= stepSizes[stepIndex];
-        }*/
-
-        // Set new PIDF coefficients:
-
-
-
+        }
     }
 }
