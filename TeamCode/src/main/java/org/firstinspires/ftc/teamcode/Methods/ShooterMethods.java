@@ -32,10 +32,4 @@ public class ShooterMethods {
     public double getPos() {
         return (position);
     }
-
-
-
-
-
-
 }

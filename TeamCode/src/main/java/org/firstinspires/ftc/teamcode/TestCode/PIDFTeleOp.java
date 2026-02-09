@@ -170,7 +170,7 @@ public class PIDFTeleOp extends OpMode {
         correctionValue = Vision.aim(teamColor, telemetry);
 
         if (autoAim & !(correctionValue == 2)) {
-            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -correctionValue, 1 - ctrlRTrig);
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
         } else {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
@@ -236,9 +236,10 @@ public class PIDFTeleOp extends OpMode {
 
         error = curveTargetVelocity - shooterSpeed;
         if (ctrlStartShootMotorL || ctrlStartShootMotorS) {
-            Shooter.motorVelocity(curveTargetVelocity);
             shooterEnable = true;
         }
+
+        if (shooterEnable) Shooter.motorVelocity(curveTargetVelocity);
 
         if (ctrlStopShootMotor) {
             Shooter.motorPower(0.0);
@@ -255,7 +256,7 @@ public class PIDFTeleOp extends OpMode {
         telemetry.addData("Error: ", "%.2f", error);
         telemetry.addLine("-------------------------------");
         telemetry.addData("Tuning P: ", "%.4f (y/a)", P);
-        telemetry.addData("Tuning D: ", "%.4f (x/b)", D);
+        telemetry.addData("Tuning F: ", "%.4f (x/b)", F);
         telemetry.addData("Step Size: ", "%.4f (Right Bumper)", stepSizes[stepIndex]);
 
         // PIDF:
@@ -270,10 +271,10 @@ public class PIDFTeleOp extends OpMode {
         }
 
         if (gamepad1.xWasPressed()) {
-            D -= stepSizes[stepIndex];
+            F -= stepSizes[stepIndex];
         }
         if (gamepad1.bWasPressed()) {
-            D += stepSizes[stepIndex];
+            F += stepSizes[stepIndex];
         }
 
         if (gamepad1.yWasPressed()) {

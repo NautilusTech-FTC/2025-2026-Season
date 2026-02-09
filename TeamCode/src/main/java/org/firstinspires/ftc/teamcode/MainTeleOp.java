@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
+import org.firstinspires.ftc.teamcode.Methods.TiltMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
 import org.firstinspires.ftc.teamcode.Methods.VisionMethods;
 
@@ -29,6 +30,7 @@ public class MainTeleOp extends OpMode {
     TransferMethods.DetectedColor detectedColor;
     LEDMethods LED = new LEDMethods();
     VisionMethods Vision = new VisionMethods();
+    TiltMethods Tilt = new TiltMethods();
 
     //Control variables:
     //These contain controller inputs
@@ -41,6 +43,7 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStopShootMotor;
     boolean ctrlStartShootMotorS;
     boolean ctrlStartShootMotorL;
+    boolean ctrlTilt;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -59,6 +62,7 @@ public class MainTeleOp extends OpMode {
     boolean autoAim = false;
     double correctionValue;
     double lightVal = 0;
+    boolean tiltOn = false;
 
     // PIDF:
     public double highShooterVelocity = 1620;
@@ -89,6 +93,7 @@ public class MainTeleOp extends OpMode {
         Shooter.init(hardwareMap);
         LED.init(hardwareMap);
         Vision.init(hardwareMap);
+        Tilt.init(hardwareMap);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
@@ -107,6 +112,7 @@ public class MainTeleOp extends OpMode {
         shoot();
         intake_Transfer();
         robotCentricDrive();
+        tilt();
     }
 
     public void performanceTracking() {
@@ -136,9 +142,11 @@ public class MainTeleOp extends OpMode {
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
+        ctrlTilt = gamepad1.y;
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
+        Tilt.tiltPos = Tilt.tiltMotor.getCurrentPosition();
     }
 
     /*
@@ -166,7 +174,7 @@ public class MainTeleOp extends OpMode {
         correctionValue = Vision.aim(teamColor, telemetry);
 
         if (autoAim & !(correctionValue == 2)) {
-            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -correctionValue, 1 - ctrlRTrig);
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
         } else {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
@@ -248,5 +256,18 @@ public class MainTeleOp extends OpMode {
         // PIDF Telemetry:
         telemetry.addData("Target Speed: ", curveTargetVelocity);
         telemetry.addData("Error: ", "%.2f", error);
+    }
+
+    public void tilt() {
+        if (ctrlTilt && !tiltOn) {
+            Tilt.liftPos(100);
+            tiltOn = true;
+        }
+        if (ctrlTilt && tiltOn) {
+            Tilt.liftPos(0);
+            tiltOn = false;
+        }
+
+        telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
     }
 }
