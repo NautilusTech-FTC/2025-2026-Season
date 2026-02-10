@@ -43,7 +43,8 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStopShootMotor;
     boolean ctrlStartShootMotorS;
     boolean ctrlStartShootMotorL;
-    boolean ctrlTilt;
+    boolean ctrlTiltOn;
+    boolean ctrlTiltOff;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -62,7 +63,7 @@ public class MainTeleOp extends OpMode {
     boolean autoAim = false;
     double correctionValue;
     double lightVal = 0;
-    boolean tiltOn = false;
+    //boolean tiltOn = false;
 
     // PIDF:
     public double highShooterVelocity = 1620;
@@ -142,7 +143,8 @@ public class MainTeleOp extends OpMode {
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
-        ctrlTilt = gamepad1.y;
+        ctrlTiltOn = gamepad1.left_bumper;
+        ctrlTiltOff = gamepad1.right_bumper;
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
@@ -259,14 +261,20 @@ public class MainTeleOp extends OpMode {
     }
 
     public void tilt() {
-        if (ctrlTilt && !tiltOn) {
+        if (ctrlTiltOn) {
+            Tilt.liftPos(-2000);
+        }
+        if (ctrlTiltOff) {
+            Tilt.liftPos(0);
+        }
+        /* if (ctrlTilt && !tiltOn) {
             Tilt.liftPos(100);
             tiltOn = true;
         }
         if (ctrlTilt && tiltOn) {
             Tilt.liftPos(0);
             tiltOn = false;
-        }
+        } */
 
         telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
     }
