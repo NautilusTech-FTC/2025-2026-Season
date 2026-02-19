@@ -39,22 +39,19 @@ public class Meeps {
 
         blueFar.runAction(blueFar.getDrive().actionBuilder(new Pose2d(62, -15, Math.PI))
                 .setTangent(Math.PI)
-                .splineTo(new Vector2d(55, -15), 3.6)
+                .splineToLinearHeading(new Pose2d(55, -15, 3.575), 3.575)
 
-                .setTangent(3.6)
-                .splineTo(new Vector2d(36, -54), -Math.PI/2)
+                .setTangent(3.575)
+                .splineToSplineHeading(new Pose2d(41, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-64, new TranslationalVelConstraint(25.0))
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -15, 3.6), 3.6-Math.PI)
+                .splineToLinearHeading(new Pose2d(55, -15, 3.575), 3.575-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
 
                 .setTangent(Math.PI) //Start 9 ball test
-                .splineToLinearHeading(new Pose2d(12, -54, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .splineToSplineHeading(new Pose2d(15, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-64, new TranslationalVelConstraint(25.0))
                 .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), 3.6-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75)) //End 9 ball test
-
-                .setTangent(3.6) //Start 12 ball test!!!!!
-                .splineTo(new Vector2d(-12, -54), -Math.PI/2)
-                .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), 3.6-Math.PI) //End 12 ball test!!!!!!
+                .splineTo(new Vector2d(55, -15), 3.575-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
 
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2)
@@ -62,22 +59,19 @@ public class Meeps {
 
         blueFarTest.runAction(blueFarTest.getDrive().actionBuilder(new Pose2d(62, -15, Math.PI))
                 .setTangent(Math.PI)
-                .splineToLinearHeading(new Pose2d(55, -15, 3.6), 3.6)
+                .splineToLinearHeading(new Pose2d(55, -15, 3.575), 3.575)
 
-                .setTangent(3.6)
-                .splineTo(new Vector2d(36, -60), -Math.PI/2)
+                .setTangent(3.575)
+                .splineToSplineHeading(new Pose2d(41, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-64, new TranslationalVelConstraint(25.0))
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -15, 3.6), 3.6-Math.PI)
+                .splineToLinearHeading(new Pose2d(55, -15, 3.575), 3.575-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
 
                 .setTangent(Math.PI) //Start 9 ball test
-                .splineToLinearHeading(new Pose2d(11, -60, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .splineToSplineHeading(new Pose2d(15, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-64, new TranslationalVelConstraint(25.0))
                 .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), 3.6-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75)) //End 9 ball test
-
-                .setTangent(3.6) //Start 12 ball test!!!!!
-                .splineTo(new Vector2d(-12, -56), -Math.PI/2)
-                .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), 3.6-Math.PI) //End 12 ball test!!!!!!
+                .splineTo(new Vector2d(55, -15), 3.575-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
 
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2)
