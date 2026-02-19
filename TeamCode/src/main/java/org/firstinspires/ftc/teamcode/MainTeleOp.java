@@ -230,12 +230,12 @@ public class MainTeleOp extends OpMode {
             Transfer.spoonPos(0.84); //spoon up
         }
 
-        if ((spoontime > 0.15) & (spoonPhase == 1)) {
+        if ((spoontime > 0.25) & (spoonPhase == 1)) {
             Transfer.spoonPos(0.97); //spoon down
             spoonPhase++;
         }
 
-        if (spoontime > 0.3) {
+        if (spoontime > 0.8) {
             spoonPhase = 0;
         }
 
@@ -262,10 +262,10 @@ public class MainTeleOp extends OpMode {
 
     public void tilt() {
         if (ctrlTiltOn) {
-            Tilt.liftPos(-2000);
+            Tilt.liftToPos(-2000);
         }
         if (ctrlTiltOff) {
-            Tilt.liftPos(0);
+            Tilt.liftToPos(0);
         }
         /* if (ctrlTilt && !tiltOn) {
             Tilt.liftPos(100);

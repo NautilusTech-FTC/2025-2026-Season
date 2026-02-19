@@ -1,21 +1,28 @@
 package org.firstinspires.ftc.teamcode.Methods;
 
-
+import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
+import java.util.List;
+
 @Config
 public class VisionMethods {
-    private AprilTagProcessor aprilTagProcessor;
-    private VisionPortal visionPortal;
 
     DrivingMethods Drive = new DrivingMethods();
 
@@ -25,19 +32,67 @@ public class VisionMethods {
     int target;
 
 
-    public static double divisor = 35;
+    public static double divisor = 1;
     public static double blueOffset = -4;
     public static double redOffset = 0;
 
+    private Position cameraPosition = new Position(DistanceUnit.INCH,
+            3.004025, 7.06102, 8.85674, 0);
+    private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
+            0, -90, 0, 0);
+
+    private AprilTagProcessor aprilTag;
+    private VisionPortal visionPortal;
+
+    double x, y, z, yaw;
+
+    double offsetIMU = 0;
+    double IMUPreValue = 0;
+    double IMUValue = 0;
+    IMU imu;
 
 
 
 
     public void init(HardwareMap hardwareMap) {
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        aprilTagProcessor = AprilTagProcessor.easyCreateWithDefaults();
-        visionPortal = VisionPortal.easyCreateWithDefaults(webcamName, aprilTagProcessor);
 
+        aprilTag = new AprilTagProcessor.Builder()
+
+                /* The following default settings are available to un-comment and edit as needed. */
+                //.setDrawAxes(false)
+                //.setDrawCubeProjection(false)
+                //.setDrawTagOutline(true)
+                //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setCameraPose(cameraPosition, cameraOrientation)
+
+                /* == CAMERA CALIBRATION ==
+                If you do not manually specify calibration parameters, the SDK will attempt
+                to load a predefined calibration for your camera. */
+                .setLensIntrinsics(481.985, 481.985, 334.203, 241.948)
+                // ... these parameters are fx, fy, cx, cy.
+
+                .build();
+
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        builder.setCameraResolution(new Size(640, 480));
+
+        builder.addProcessor(aprilTag);
+
+        visionPortal = builder.build();
+
+        imu = hardwareMap.get(IMU.class, "externalIMU");
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
+        )));
+
+        imu.resetYaw();
     }
 
     /*public void statsDisplay() {
@@ -63,40 +118,79 @@ public class VisionMethods {
 
     public double aim(int team, Telemetry telemetry) {
         targetAcquired = false;
+
         if (team == 0) {
             target = 20;
         } else {
             target = 24;
         }
 
-        for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        telemetry.addData("# AprilTags Detected", currentDetections.size());
+        for (AprilTagDetection detection : currentDetections) {
             if ((detection.id == target) & (detection.metadata != null)) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("X", detection.ftcPose.x));
-                tagX = detection.ftcPose.x;
+                x = detection.robotPose.getPosition().y;
+                y = -detection.robotPose.getPosition().x; //fixes the weird pi/2 rotation
+                z = detection.robotPose.getPosition().z;
+                yaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) - Math.PI/2;
+
+                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
                 targetAcquired = true;
             }
         }
+        telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
+        telemetry.addData("yaw", yaw);
+        IMUPreValue = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        if (IMUPreValue == -0.0) {
+            imu.resetYaw();
+            IMUPreValue = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            offsetIMU = offsetIMU + IMUValue;
+        }
 
+        IMUValue = IMUPreValue;
         if (targetAcquired) {
             if (team == 0) {
-                correctionValue = (tagX + blueOffset) / divisor;
+                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025);
             } else {
-                correctionValue = (tagX + redOffset) / divisor;
+                correctionValue = tanThroughXY(x,y,60, 60, 3.004025)-Math.PI;
             }
+            telemetry.addData("desired angle", correctionValue);
+
+            offsetIMU = yaw - IMUValue;
+            correctionValue = (correctionValue-yaw)/divisor;
         } else {
-            correctionValue = 0;
-            return(2);
+            if (team == 0) {
+                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025);
+            } else {
+                correctionValue = tanThroughXY(x,y,60, 60, 3.004025)-Math.PI;
+            }
+            telemetry.addData("desired angle", correctionValue);
+
+            correctionValue = (correctionValue-(offsetIMU+IMUValue))/divisor;
         }
+
+        telemetry.addData("correctionValue", correctionValue);
+        telemetry.addData("IMU value", IMUValue);
+        telemetry.addData("IMU offset", offsetIMU);
 
         if (Math.abs(correctionValue) < 0.01) {
             correctionValue = 0;
         } else if (Math.abs(correctionValue) > 1) {
             correctionValue = Math.signum(correctionValue);
         }
-        telemetry.addData("correction value", correctionValue);
 
-        telemetry.update();
         return(correctionValue);
+    }
+
+    public double tanThroughXY(
+            double robotX,
+            double robotY,
+            double targetX,
+            double targetY,
+            double radius
+    ) {
+        double xdiff = (targetX-robotX);
+        double ydiff = (targetY-robotY);
+        return(Math.PI + Math.atan(ydiff/xdiff) - Math.acos(radius/(Math.sqrt((xdiff*xdiff)+(ydiff*ydiff)))));
     }
 }

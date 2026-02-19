@@ -33,6 +33,6 @@ public class MecanumBot extends OpMode {
     }
 
     public void FieldCentric() {
-        Drive.FieldCentric(ctrlLX,ctrlLY,ctrlRX,1-ctrlRT,ctrlOptions,strafeFix,telemetry);
+        Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 0.8);
     }
 }
