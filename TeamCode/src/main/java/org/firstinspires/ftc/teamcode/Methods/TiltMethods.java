@@ -16,7 +16,7 @@ public class TiltMethods {
         tiltMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    public void liftPos(int pos) {
+    public void liftToPos(int pos) {
         tiltMotor.setTargetPosition(pos);
         tiltMotor.setPower(1);
     }
