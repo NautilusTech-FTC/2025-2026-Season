@@ -29,9 +29,9 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 public class Blue9BallFar extends LinearOpMode {
     public static double shootAngle = 3.575;
     public static double x1 = 41;
-    public static double x2 = 15;
-    public static double y1 = -64;
-    public static double y2 = -64;
+    public static double x2 = 18;
+    public static double y1 = -59;
+    public static double y2 = -59;
 
 
 

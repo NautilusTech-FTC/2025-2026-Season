@@ -78,6 +78,17 @@ public class AutoMethods {
                 }
             };
         }
+        public Action stackdex (int motif) {
+            return new Action() {
+                @Override
+                public boolean run(@NonNull TelemetryPacket packet) {
+                    if (motif == 22) {
+
+                    }
+                    return false;
+                }
+            };
+        }
     }
 
     public static class Shoot {

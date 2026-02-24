@@ -10,9 +10,6 @@ public class TiltMethods {
 
     public void init(HardwareMap hardwareMap) {
         tiltMotor = hardwareMap.get(DcMotorEx.class, "TiltMotor");
-        tiltMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        tiltMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        tiltMotor.setTargetPosition(0);
         tiltMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
