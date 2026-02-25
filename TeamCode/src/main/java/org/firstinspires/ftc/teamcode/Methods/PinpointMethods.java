@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode.Methods;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -13,13 +15,14 @@ public class PinpointMethods {
     public static double perpXTicks = -3441.154550441893; // x position of the perpendicular encoder (in tick units)
     public static double inPerTick = 0.00209071;
 
-    pose2D pos; 
+    Pose2D pos;
     public void init (HardwareMap hardwareMap) {
-        PinPoint = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint")
+        PinPoint = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
         double mmPerTick = inPerTick * 25.4;
-        PinPoint.setEncoderResolution(1 / mmPerTick, DistanceUnit.MM)
+        PinPoint.setEncoderResolution(1 / mmPerTick, DistanceUnit.MM);
         PinPoint.setOffsets(mmPerTick*parYTicks, mmPerTick*perpXTicks, DistanceUnit.MM);
         PinPoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        PinPoint.resetPosAndIMU();
     }
 
     public void update() {
@@ -27,11 +30,11 @@ public class PinpointMethods {
         pos = PinPoint.getPosition();
     }
     
-    public double heading() {
-        return pos.getHeading(AngleUnit.RADIANS);
+    public Pose2D pose() {
+        return pos;
     }
 
-    public double localize(pose2D position) {
-        PinPoint.setPosition(position)
+    public void localize(Pose2D position) {
+        PinPoint.setPosition(position);
     }
 }

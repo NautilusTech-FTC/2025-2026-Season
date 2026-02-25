@@ -3,16 +3,14 @@ package org.firstinspires.ftc.teamcode.Methods;
 import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -31,11 +29,19 @@ public class VisionMethods {
     double correctionValue;
     boolean targetAcquired;
     int target;
+    boolean localized = false;
 
 
     public static double divisor = 1;
-    public static double blueOffset = -4;
-    public static double redOffset = 0;
+    public static double blueGoalX = -60;
+    public static double blueGoalY = -60;
+    public static double redGoalX = -60;
+    public static double redGoalY = 60;
+
+    public double targetX = -60;
+    public double targetY = -60;
+
+
 
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             3.004025, 7.06102, 8.85674, 0);
@@ -45,12 +51,15 @@ public class VisionMethods {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
 
-    double x, y, z, yaw;
+    double cameraX, cameraY, cameraZ, cameraYaw;
 
     double offsetIMU = 0;
     double IMUPreValue = 0;
     double IMUValue = 0;
     IMU imu;
+
+    Pose3D cameraPose;
+    Pose2D robotPose;
 
 
 
@@ -86,93 +95,67 @@ public class VisionMethods {
         builder.addProcessor(aprilTag);
 
         visionPortal = builder.build();
-
-        
     }
 
-    /*public void statsDisplay() {
-        for (AprilTagDetection detection : aprilTagProcessor.getDetections()) {
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("\n==== (ID %d) %s", detection.id, detection.metadata.name));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-            } else {
-                telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-            }
-        }   // end for() loop
-
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-
-        telemetry.update();
-    }*/
-    public void setTeam(team) {
+    public void setTeam(int team) {
         if (team == 0) {
             target = 20;
+            targetX = blueGoalX;
+            targetY = blueGoalY;
         } else {
             target = 24;
+            targetX = redGoalX;
+            targetY = redGoalY;
         }
     }
 
-    public void updateCamera() {
+    public void updateCamera(Telemetry telemetry) {
         targetAcquired = false;
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
         for (AprilTagDetection detection : currentDetections) {
             if ((detection.id == target) & (detection.metadata != null)) {
-                pose = detection.robotPose;
-                x = detection.robotPose.getPosition().x;
-                y = detection.robotPose.getPosition().y; //fixes the weird pi/2 rotation
-                z = detection.robotPose.getPosition().z;
-                yaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) - Math.PI/2;
+                cameraPose = detection.robotPose;
+                cameraX = detection.robotPose.getPosition().x;
+                cameraY = detection.robotPose.getPosition().y;
+                cameraZ = detection.robotPose.getPosition().z;
+                cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) - Math.PI/2;
 
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
-                targetAcquired = true;
+                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", cameraX, cameraY, cameraZ));
+                if(cameraZ < 10) {
+                    targetAcquired = true;
+                }
             }
         }
     }
 
     
-    public double aim(int team, boolean doLocalize, PinpointMethods PinPoint, Telemetry telemetry) {
-        targetAcquired = false;
+    public double aim(boolean enable, boolean doLocalize, PinpointMethods PinPoint, Telemetry telemetry) {
         if(doLocalize) {
-            updateCamera();
+            updateCamera(telemetry);
             if(targetAcquired) {
-                PinPoint.localize(pose)
+                PinPoint.localize(new Pose2D(DistanceUnit.INCH, cameraX, cameraY, AngleUnit.RADIANS, cameraYaw));
+                localized = true;
             } else {
                 return(2);
             }
         }
-
-        PinPoint.update;
-
-        telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
-        telemetry.addData("yaw", yaw);
-        IMUValue = PinPoint.heading
-        if (targetAcquired) {
-            if (team == 0) {
-                correctionValue = tanThroughXY(x,y,-60, -60, 3.004025);
-            } else {
-                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025)-Math.PI;
-            }
-            telemetry.addData("desired angle", correctionValue);
-
-            offsetIMU = yaw - IMUValue;
-            correctionValue = (correctionValue-yaw)/divisor;
-        } else {
-            if (team == 0) {
-                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025);
-            } else {
-                correctionValue = tanThroughXY(x,y,60, 60, 3.004025)-Math.PI;
-            }
-            telemetry.addData("desired angle", correctionValue);
-
-            correctionValue = (correctionValue-(offsetIMU+IMUValue))/divisor;
+        if (!localized) {
+            return(2);
         }
+        if (!enable) {
+            return(3);
+        }
+
+        PinPoint.update();
+        telemetry.addData("yaw", cameraYaw);
+        robotPose = PinPoint.pose();
+
+        correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
+
+        telemetry.addData("desired angle", correctionValue);
+
+        correctionValue = (correctionValue-(offsetIMU+IMUValue))/divisor;
+
 
         telemetry.addData("correctionValue", correctionValue);
         telemetry.addData("IMU value", IMUValue);

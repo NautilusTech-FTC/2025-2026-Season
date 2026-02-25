@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
+import org.firstinspires.ftc.teamcode.Methods.PinpointMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
 import org.firstinspires.ftc.teamcode.Methods.TiltMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
@@ -156,12 +157,6 @@ public class MainTeleOp extends OpMode {
         Tilt.tiltPos = Tilt.tiltMotor.getCurrentPosition();
     }
 
-    /*
-    public void fieldCentricDrive() {
-        Drive.FieldCentric(ctrlLX, ctrlLY, ctrlRX, 1-ctrlRTrig, ctrlHome, strafeFix, telemetry);
-    }
-    */
-
     public void robotCentricDrive() {
         
         if (ctrlTeamSelectLeft) {
@@ -180,17 +175,22 @@ public class MainTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        if(localizeToggle == false )
-        correctionValue = Vision.aim(teamColor, ctrlLocalize, PinPoint, telemetry);
+        if(!localizeToggle & autoAim) {
+            localizeToggle = true;
+        }
+        correctionValue = Vision.aim(autoAim, localizeToggle, PinPoint, telemetry);
 
         if (autoAim & (correctionValue <= 1)) {
             LED.redToGreen(1);
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
         } else {
+            if(correctionValue == 3) {
+                localizeToggle = false;
+            }
             if(correctionValue == 2) {
-                LED.redToGreen(0.5)
+                LED.redToGreen(0.5);
             } else {
-                LED.redToGreen(0)
+                LED.redToGreen(0);
             }
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
@@ -282,14 +282,6 @@ public class MainTeleOp extends OpMode {
         if (ctrlTiltOff) {
             Tilt.liftToPos(0);
         }
-        /* if (ctrlTilt && !tiltOn) {
-            Tilt.liftPos(100);
-            tiltOn = true;
-        }
-        if (ctrlTilt && tiltOn) {
-            Tilt.liftPos(0);
-            tiltOn = false;
-        } */
 
         telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
     }
