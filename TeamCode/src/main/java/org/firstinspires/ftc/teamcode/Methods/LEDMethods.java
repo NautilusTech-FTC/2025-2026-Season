@@ -30,9 +30,11 @@ public class LEDMethods {
     public void redToGreen(double val) {
         //led.setPosition(Math.random());
         if (val == 1) {
-            led0.setPosition(highestColor);
+            led0.setPosition(0.5);
+        } else if(val == 0.5) {
+            led0.setPosition(0.278)
         } else {
-            led0.setPosition(lowestColor);
+            led0.setPosition(0);
         }
 
     }

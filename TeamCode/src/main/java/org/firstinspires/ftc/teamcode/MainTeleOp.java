@@ -31,6 +31,7 @@ public class MainTeleOp extends OpMode {
     LEDMethods LED = new LEDMethods();
     VisionMethods Vision = new VisionMethods();
     TiltMethods Tilt = new TiltMethods();
+    PinpointMethods PinPoint = new PinpointMethods();
 
     //Control variables:
     //These contain controller inputs
@@ -45,6 +46,7 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStartShootMotorL;
     boolean ctrlTiltOn;
     boolean ctrlTiltOff;
+    boolean ctrlLocalize;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -63,6 +65,7 @@ public class MainTeleOp extends OpMode {
     boolean autoAim = false;
     double correctionValue;
     double lightVal = 0;
+    boolean localizeToggle;
     //boolean tiltOn = false;
 
     // PIDF:
@@ -143,6 +146,8 @@ public class MainTeleOp extends OpMode {
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
+        ctrlLocalize = gamepad1.y;
+
         ctrlTiltOn = gamepad1.left_bumper;
         ctrlTiltOff = gamepad1.right_bumper;
         runtime = getRuntime();
@@ -161,8 +166,10 @@ public class MainTeleOp extends OpMode {
         
         if (ctrlTeamSelectLeft) {
             teamColor = 0;
+            Vision.setTeam(0);
         } else if (ctrlTeamSelectRight) {
             teamColor = 1;
+            Vision.setTeam(1);
         }
         if (teamColor == 1) {telemetry.addLine("Current team: Red");}
         else {telemetry.addLine("Current team: Blue");}
@@ -173,14 +180,22 @@ public class MainTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        correctionValue = Vision.aim(teamColor, telemetry);
+        if(localizeToggle == false )
+        correctionValue = Vision.aim(teamColor, ctrlLocalize, PinPoint, telemetry);
 
-        if (autoAim & !(correctionValue == 2)) {
+        if (autoAim & (correctionValue <= 1)) {
+            LED.redToGreen(1);
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
         } else {
+            if(correctionValue == 2) {
+                LED.redToGreen(0.5)
+            } else {
+                LED.redToGreen(0)
+            }
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
 
+        
         if (autoAim) {
             LED.redToGreen(1);
         } else {

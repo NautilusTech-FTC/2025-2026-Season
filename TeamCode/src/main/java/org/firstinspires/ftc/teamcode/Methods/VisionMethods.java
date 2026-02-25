@@ -15,6 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -86,13 +87,7 @@ public class VisionMethods {
 
         visionPortal = builder.build();
 
-        imu = hardwareMap.get(IMU.class, "externalIMU");
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
-        )));
-
-        imu.resetYaw();
+        
     }
 
     /*public void statsDisplay() {
@@ -115,22 +110,23 @@ public class VisionMethods {
 
         telemetry.update();
     }*/
-
-    public double aim(int team, Telemetry telemetry) {
-        targetAcquired = false;
-
+    public void setTeam(team) {
         if (team == 0) {
             target = 20;
         } else {
             target = 24;
         }
+    }
 
+    public void updateCamera() {
+        targetAcquired = false;
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
         for (AprilTagDetection detection : currentDetections) {
             if ((detection.id == target) & (detection.metadata != null)) {
-                x = detection.robotPose.getPosition().y;
-                y = -detection.robotPose.getPosition().x; //fixes the weird pi/2 rotation
+                pose = detection.robotPose;
+                x = detection.robotPose.getPosition().x;
+                y = detection.robotPose.getPosition().y; //fixes the weird pi/2 rotation
                 z = detection.robotPose.getPosition().z;
                 yaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) - Math.PI/2;
 
@@ -138,21 +134,30 @@ public class VisionMethods {
                 targetAcquired = true;
             }
         }
-        telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
-        telemetry.addData("yaw", yaw);
-        IMUPreValue = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        if (IMUPreValue == -0.0) {
-            imu.resetYaw();
-            IMUPreValue = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            offsetIMU = offsetIMU + IMUValue;
+    }
+
+    
+    public double aim(int team, boolean doLocalize, PinpointMethods PinPoint, Telemetry telemetry) {
+        targetAcquired = false;
+        if(doLocalize) {
+            updateCamera();
+            if(targetAcquired) {
+                PinPoint.localize(pose)
+            } else {
+                return(2);
+            }
         }
 
-        IMUValue = IMUPreValue;
+        PinPoint.update;
+
+        telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", x, y, z));
+        telemetry.addData("yaw", yaw);
+        IMUValue = PinPoint.heading
         if (targetAcquired) {
             if (team == 0) {
-                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025);
+                correctionValue = tanThroughXY(x,y,-60, -60, 3.004025);
             } else {
-                correctionValue = tanThroughXY(x,y,60, 60, 3.004025)-Math.PI;
+                correctionValue = tanThroughXY(x,y,-60, 60, 3.004025)-Math.PI;
             }
             telemetry.addData("desired angle", correctionValue);
 
