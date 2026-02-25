@@ -167,7 +167,7 @@ public class PIDFTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        correctionValue = Vision.aim(teamColor, telemetry);
+        correctionValue = 1;
 
         if (autoAim & !(correctionValue == 2)) {
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);

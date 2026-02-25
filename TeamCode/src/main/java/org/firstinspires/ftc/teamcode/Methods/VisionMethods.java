@@ -30,6 +30,7 @@ public class VisionMethods {
     boolean targetAcquired;
     int target;
     boolean localized = false;
+    boolean doLocalize = true;
 
 
     public static double divisor = 1;
@@ -109,6 +110,10 @@ public class VisionMethods {
         }
     }
 
+    public void reLocalize() {
+        doLocalize = true;
+    }
+
     public void updateCamera(Telemetry telemetry) {
         targetAcquired = false;
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
@@ -118,7 +123,7 @@ public class VisionMethods {
                 cameraX = detection.robotPose.getPosition().x;
                 cameraY = detection.robotPose.getPosition().y;
                 cameraZ = detection.robotPose.getPosition().z;
-                cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) - Math.PI/2;
+                cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
                 telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", cameraX, cameraY, cameraZ));
                 if(cameraZ < 10) {
@@ -129,12 +134,13 @@ public class VisionMethods {
     }
 
     
-    public double aim(boolean enable, boolean doLocalize, PinpointMethods PinPoint, Telemetry telemetry) {
+    public double aim(boolean enable, PinpointMethods PinPoint, Telemetry telemetry) {
         if(doLocalize) {
             updateCamera(telemetry);
             if(targetAcquired) {
                 PinPoint.localize(new Pose2D(DistanceUnit.INCH, cameraX, cameraY, AngleUnit.RADIANS, cameraYaw));
                 localized = true;
+                doLocalize = false;
             } else {
                 return(2);
             }

@@ -175,18 +175,16 @@ public class MainTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        if(!localizeToggle & autoAim) {
-            localizeToggle = true;
+        if(ctrlLocalize) {
+            Vision.reLocalize();
         }
-        correctionValue = Vision.aim(autoAim, localizeToggle, PinPoint, telemetry);
+        correctionValue = Vision.aim(autoAim, PinPoint, telemetry);
+        telemetry.addData("CV",correctionValue);
 
         if (autoAim & (correctionValue <= 1)) {
             LED.redToGreen(1);
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
         } else {
-            if(correctionValue == 3) {
-                localizeToggle = false;
-            }
             if(correctionValue == 2) {
                 LED.redToGreen(0.5);
             } else {
