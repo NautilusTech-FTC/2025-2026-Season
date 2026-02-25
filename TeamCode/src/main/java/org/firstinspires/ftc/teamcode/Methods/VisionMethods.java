@@ -152,9 +152,17 @@ public class VisionMethods {
 
         correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
 
-        telemetry.addData("desired angle", correctionValue);
+        telemetry.addData("desired angle", correctionValue);\
 
-        correctionValue = (correctionValue-(offsetIMU+IMUValue))/divisor;
+        double rotationDifference = correctionValue-IMUValue
+
+        if (rotationDifference<rotationDifference-Math.PI*2) { //This will find the shortest path but even better ig
+            correctionValue = rotationDifference/divisor;
+        } else {
+            correctionValue = (rotationDifference-Math.PI*2)/divisor;
+        }
+
+        
 
 
         telemetry.addData("correctionValue", correctionValue);
