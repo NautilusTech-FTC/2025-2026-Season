@@ -99,6 +99,7 @@ public class MainTeleOp extends OpMode {
         LED.init(hardwareMap);
         Vision.init(hardwareMap);
         Tilt.init(hardwareMap);
+        PinPoint.init(hardwareMap);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {

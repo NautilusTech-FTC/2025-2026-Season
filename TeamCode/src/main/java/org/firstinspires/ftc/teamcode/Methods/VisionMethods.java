@@ -28,9 +28,9 @@ public class VisionMethods {
     double tagX;
     double correctionValue;
     boolean targetAcquired;
-    int target;
-    boolean localized = false;
-    boolean doLocalize = true;
+    int target = 20;
+    public boolean localized = false;
+    public boolean doLocalize = true;
 
 
     public static double divisor = 1;
@@ -52,7 +52,7 @@ public class VisionMethods {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
 
-    double cameraX, cameraY, cameraZ, cameraYaw;
+    double cameraX = 0, cameraY = 0, cameraZ = 0, cameraYaw = 0;
 
     double offsetIMU = 0;
     double IMUPreValue = 0;
@@ -113,30 +113,25 @@ public class VisionMethods {
     public void reLocalize() {
         doLocalize = true;
     }
+    
+    public double aim(boolean enable, PinpointMethods PinPoint, Telemetry telemetry) {
+        telemetry.addData("localized?", localized);
+        telemetry.addData("do localize?", doLocalize);
+        if(doLocalize) {
+            targetAcquired = false;
+            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+            for (AprilTagDetection detection : currentDetections) {
+                if ((detection.id == target) & (detection.metadata != null)) {
+                    cameraPose = detection.robotPose;
+                    cameraX = detection.robotPose.getPosition().x;
+                    cameraY = detection.robotPose.getPosition().y;
+                    cameraZ = detection.robotPose.getPosition().z;
+                    cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-    public void updateCamera(Telemetry telemetry) {
-        targetAcquired = false;
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        for (AprilTagDetection detection : currentDetections) {
-            if ((detection.id == target) & (detection.metadata != null)) {
-                cameraPose = detection.robotPose;
-                cameraX = detection.robotPose.getPosition().x;
-                cameraY = detection.robotPose.getPosition().y;
-                cameraZ = detection.robotPose.getPosition().z;
-                cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
-
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", cameraX, cameraY, cameraZ));
-                if(cameraZ < 10) {
+                    telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", cameraX, cameraY, cameraZ));
                     targetAcquired = true;
                 }
             }
-        }
-    }
-
-    
-    public double aim(boolean enable, PinpointMethods PinPoint, Telemetry telemetry) {
-        if(doLocalize) {
-            updateCamera(telemetry);
             if(targetAcquired) {
                 PinPoint.localize(new Pose2D(DistanceUnit.INCH, cameraX, cameraY, AngleUnit.RADIANS, cameraYaw));
                 localized = true;
@@ -148,22 +143,29 @@ public class VisionMethods {
         if (!localized) {
             return(2);
         }
+
+        PinPoint.update();
+        robotPose = PinPoint.pose();
+        telemetry.addData("yaw", robotPose.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("X", robotPose.getX(DistanceUnit.INCH));
+        telemetry.addData("Y", robotPose.getY(DistanceUnit.INCH));
+
+        telemetry.addData("desired angle", correctionValue);
+
         if (!enable) {
             return(3);
         }
 
-        PinPoint.update();
-        telemetry.addData("yaw", cameraYaw);
-        robotPose = PinPoint.pose();
+
+
 
         correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
 
-        telemetry.addData("desired angle", correctionValue);
-
-        correctionValue = (correctionValue-(offsetIMU+IMUValue))/divisor;
-
-
         telemetry.addData("correctionValue", correctionValue);
+        correctionValue = (correctionValue-robotPose.getHeading(AngleUnit.RADIANS))/divisor;
+
+
+
         telemetry.addData("IMU value", IMUValue);
         telemetry.addData("IMU offset", offsetIMU);
 

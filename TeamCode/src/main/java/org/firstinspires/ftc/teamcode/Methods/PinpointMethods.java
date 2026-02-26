@@ -23,11 +23,13 @@ public class PinpointMethods {
         PinPoint.setOffsets(mmPerTick*parYTicks, mmPerTick*perpXTicks, DistanceUnit.MM);
         PinPoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         PinPoint.resetPosAndIMU();
+
     }
 
     public void update() {
         PinPoint.update();
         pos = PinPoint.getPosition();
+
     }
     
     public Pose2D pose() {
