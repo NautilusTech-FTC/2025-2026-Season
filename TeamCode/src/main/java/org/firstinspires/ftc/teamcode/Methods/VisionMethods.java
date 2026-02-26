@@ -150,21 +150,17 @@ public class VisionMethods {
         telemetry.addData("X", robotPose.getX(DistanceUnit.INCH));
         telemetry.addData("Y", robotPose.getY(DistanceUnit.INCH));
 
-        telemetry.addData("desired angle", correctionValue);\
+        telemetry.addData("desired angle", correctionValue);
 
-        double rotationDifference = correctionValue-IMUValue
+        correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
+
+        double rotationDifference = correctionValue-IMUValue;
 
         if (rotationDifference<rotationDifference-Math.PI*2) { //This will find the shortest path but even better ig
             correctionValue = rotationDifference/divisor;
         } else {
             correctionValue = (rotationDifference-Math.PI*2)/divisor;
         }
-
-
-
-
-
-        correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
 
         telemetry.addData("correctionValue", correctionValue);
         telemetry.addData("IMU value", IMUValue);
