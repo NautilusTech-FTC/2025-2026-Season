@@ -64,7 +64,7 @@ public class MainTeleOp extends OpMode {
     boolean ctrlAutoAimToggle;
     boolean autoAimToggle;
     boolean autoAim = false;
-    double correctionValue;
+    double aimValue;
     double lightVal = 0;
     boolean localizeToggle;
     //boolean tiltOn = false;
@@ -159,16 +159,12 @@ public class MainTeleOp extends OpMode {
     }
 
     public void robotCentricDrive() {
-        
-        if (ctrlTeamSelectLeft) {
-            teamColor = 0;
-            Vision.setTeam(0);
-        } else if (ctrlTeamSelectRight) {
-            teamColor = 1;
-            Vision.setTeam(1);
+        if(ctrlLocalize) {
+            Vision.reLocalize();
         }
-        if (teamColor == 1) {telemetry.addLine("Current team: Red");}
-        else {telemetry.addLine("Current team: Blue");}
+        Vision.getPose(PinPoint, telemetry);
+        
+        teamSelect();
 
         if (ctrlAutoAimToggle & autoAimToggle) {
             autoAimToggle = false;
@@ -176,21 +172,15 @@ public class MainTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        if(ctrlLocalize) {
-            Vision.reLocalize();
-        }
-        correctionValue = Vision.aim(autoAim, PinPoint, telemetry);
-        telemetry.addData("CV",correctionValue);
 
-        if (autoAim & (correctionValue <= 1)) {
+        aimValue = Vision.aim(telemetry);
+        telemetry.addData("CV", aimValue);
+
+        if (autoAim) {
             LED.redToGreen(1);
-            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, correctionValue, 1 - ctrlRTrig);
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, aimValue, 1 - ctrlRTrig);
         } else {
-            if(correctionValue == 2) {
-                LED.redToGreen(0.5);
-            } else {
-                LED.redToGreen(0);
-            }
+            LED.redToGreen(0);
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
 
@@ -200,6 +190,18 @@ public class MainTeleOp extends OpMode {
         } else {
             LED.redToGreen(0);
         }
+    }
+
+    public void teamSelect() {
+        if (ctrlTeamSelectLeft) {
+            teamColor = 0;
+            Vision.setTeam(0);
+        } else if (ctrlTeamSelectRight) {
+            teamColor = 1;
+            Vision.setTeam(1);
+        }
+        if (teamColor == 1) {telemetry.addLine("Current team: Red");}
+        else {telemetry.addLine("Current team: Blue");}
     }
 
     public void intake_Transfer() {

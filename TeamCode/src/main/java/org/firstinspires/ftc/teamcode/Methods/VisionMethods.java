@@ -4,7 +4,6 @@ import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -23,10 +22,6 @@ import java.util.List;
 @Config
 public class VisionMethods {
 
-    DrivingMethods Drive = new DrivingMethods();
-
-    double tagX;
-    double correctionValue;
     boolean targetAcquired;
     int target = 20;
     public boolean localized = false;
@@ -42,8 +37,6 @@ public class VisionMethods {
     public double targetX = -60;
     public double targetY = -60;
 
-
-
     private Position cameraPosition = new Position(DistanceUnit.INCH,
             3.004025, 7.06102, 8.85674, 0);
     private YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.DEGREES,
@@ -53,11 +46,6 @@ public class VisionMethods {
     private VisionPortal visionPortal;
 
     double cameraX = 0, cameraY = 0, cameraZ = 0, cameraYaw = 0;
-
-    double offsetIMU = 0;
-    double IMUPreValue = 0;
-    double IMUValue = 0;
-    IMU imu;
 
     Pose3D cameraPose;
     Pose2D robotPose;
@@ -114,7 +102,7 @@ public class VisionMethods {
         doLocalize = true;
     }
 
-    public double aim(boolean enable, PinpointMethods PinPoint, Telemetry telemetry) {
+    public void getPose(PinpointMethods PinPoint, Telemetry telemetry) {
         telemetry.addData("localized?", localized);
         telemetry.addData("do localize?", doLocalize);
         if(doLocalize) {
@@ -126,7 +114,7 @@ public class VisionMethods {
                     cameraX = detection.robotPose.getPosition().x;
                     cameraY = detection.robotPose.getPosition().y;
                     cameraZ = detection.robotPose.getPosition().z;
-                    cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                    cameraYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.PI/2;
 
                     telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", cameraX, cameraY, cameraZ));
                     targetAcquired = true;
@@ -137,11 +125,8 @@ public class VisionMethods {
                 localized = true;
                 doLocalize = false;
             } else {
-                return(2);
+                return;
             }
-        }
-        if (!localized) {
-            return(2);
         }
 
         PinPoint.update();
@@ -149,22 +134,57 @@ public class VisionMethods {
         telemetry.addData("yaw", robotPose.getHeading(AngleUnit.RADIANS));
         telemetry.addData("X", robotPose.getX(DistanceUnit.INCH));
         telemetry.addData("Y", robotPose.getY(DistanceUnit.INCH));
+    }
+
+    public double setAngle(double angle, Telemetry telemetry) {
+        if(!localized) {
+            return(2);
+        }
+        if (angle > Math.PI) {
+            angle-=2*Math.PI;
+        }
+        if (angle < -Math.PI) {
+            angle+=2*Math.PI;
+        }
+        double rotationDifference = angle-(robotPose.getHeading(AngleUnit.RADIANS));
+
+        if (Math.abs(rotationDifference) > Math.abs(rotationDifference+Math.PI*2)) {
+            rotationDifference+=Math.PI*2;
+        } else if (Math.abs(rotationDifference) > Math.abs(rotationDifference-Math.PI*2)) {
+            rotationDifference-=Math.PI*2;
+        }
+
+        double correctionValue = rotationDifference/divisor;
+
+        if (Math.abs(correctionValue) < 0.01) {
+            correctionValue = 0;
+        } else if (Math.abs(correctionValue) > 1) {
+            correctionValue = Math.signum(correctionValue);
+        }
+
+        return(correctionValue);
+    }
+
+    public double aim(Telemetry telemetry) {
+        if(!localized) {
+            return(2);
+        }
+        double correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025) + Math.PI/2;
+        if(target == 20) {
+            correctionValue-=2*Math.PI;
+        }
 
         telemetry.addData("desired angle", correctionValue);
 
-        correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
+        double rotationDifference = correctionValue-(robotPose.getHeading(AngleUnit.RADIANS));
 
-        double rotationDifference = correctionValue-IMUValue;
-
-        if (rotationDifference<rotationDifference-Math.PI*2) { //This will find the shortest path but even better ig
-            correctionValue = rotationDifference/divisor;
-        } else {
-            correctionValue = (rotationDifference-Math.PI*2)/divisor;
+        if (Math.abs(rotationDifference) > Math.abs(rotationDifference+Math.PI*2)) {
+            rotationDifference+=Math.PI*2;
+        } else if (Math.abs(rotationDifference) > Math.abs(rotationDifference-Math.PI*2)) {
+            rotationDifference-=Math.PI*2;
         }
 
-        telemetry.addData("correctionValue", correctionValue);
-        telemetry.addData("IMU value", IMUValue);
-        telemetry.addData("IMU offset", offsetIMU);
+        correctionValue = rotationDifference/divisor;
 
         if (Math.abs(correctionValue) < 0.01) {
             correctionValue = 0;
