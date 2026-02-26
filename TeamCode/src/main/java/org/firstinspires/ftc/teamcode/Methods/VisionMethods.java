@@ -113,7 +113,7 @@ public class VisionMethods {
     public void reLocalize() {
         doLocalize = true;
     }
-    
+
     public double aim(boolean enable, PinpointMethods PinPoint, Telemetry telemetry) {
         telemetry.addData("localized?", localized);
         telemetry.addData("do localize?", doLocalize);
@@ -150,11 +150,16 @@ public class VisionMethods {
         telemetry.addData("X", robotPose.getX(DistanceUnit.INCH));
         telemetry.addData("Y", robotPose.getY(DistanceUnit.INCH));
 
-        telemetry.addData("desired angle", correctionValue);
+        telemetry.addData("desired angle", correctionValue);\
 
-        if (!enable) {
-            return(3);
+        double rotationDifference = correctionValue-IMUValue
+
+        if (rotationDifference<rotationDifference-Math.PI*2) { //This will find the shortest path but even better ig
+            correctionValue = rotationDifference/divisor;
+        } else {
+            correctionValue = (rotationDifference-Math.PI*2)/divisor;
         }
+
 
 
 
@@ -162,10 +167,6 @@ public class VisionMethods {
         correctionValue = tanThroughXY(robotPose.getX(DistanceUnit.INCH),robotPose.getY(DistanceUnit.INCH),targetX, targetY, 3.004025);
 
         telemetry.addData("correctionValue", correctionValue);
-        correctionValue = (correctionValue-robotPose.getHeading(AngleUnit.RADIANS))/divisor;
-
-
-
         telemetry.addData("IMU value", IMUValue);
         telemetry.addData("IMU offset", offsetIMU);
 
