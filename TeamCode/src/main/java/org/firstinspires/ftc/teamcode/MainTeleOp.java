@@ -71,7 +71,7 @@ public class MainTeleOp extends OpMode {
 
     // PIDF:
     public double highShooterVelocity = 1620;
-    public double lowShooterVelocity = 1350;
+    public double lowShooterVelocity = 1450;
     double curveTargetVelocity = highShooterVelocity;
     public double P = 293;
     public double I = 0;
