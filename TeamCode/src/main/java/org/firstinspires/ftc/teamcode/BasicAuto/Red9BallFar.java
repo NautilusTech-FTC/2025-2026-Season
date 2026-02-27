@@ -53,14 +53,14 @@ public class Red9BallFar extends LinearOpMode {
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40));
 
-        TrajectoryActionBuilder row2 = aim.endTrajectory().fresh()
+        TrajectoryActionBuilder row2 = row1.endTrajectory().fresh()
                 .setTangent(Math.PI) //Start 9 ball test
                 .splineToSplineHeading(new Pose2d(x2, 34, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .lineToY(y2, new TranslationalVelConstraint(25.0))
                 .setTangent(-Math.PI/2)
-                .splineTo(new Vector2d(55, 15), shootAngle-Math.PI, new TranslationalVelConstraint(40));
+                .splineToLinearHeading(new Pose2d(55, 15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40));
 
-        TrajectoryActionBuilder home = aim.endTrajectory().fresh()
+        TrajectoryActionBuilder home = row2.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2);
 

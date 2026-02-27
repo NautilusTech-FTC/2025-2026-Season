@@ -25,7 +25,7 @@ public class DrivingMethods {
     double powerBL;
 
     // sets up the imu, not much to explain here
-    private IMU imu;
+    //private IMU imu;
 
     private double motorSpeed;
 
@@ -53,14 +53,14 @@ public class DrivingMethods {
         bL.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Sets up the IMU
-        imu = hardwareMap.get(IMU.class, "imu");
+        //imu = hardwareMap.get(IMU.class, "imu");
 
         // Tells the code what direction the Control Hub is facing
         RevHubOrientationOnRobot RevOrientation =
                 new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
 
         // Finalizes the IMU initialization
-        imu.initialize(new IMU.Parameters(RevOrientation));
+        //imu.initialize(new IMU.Parameters(RevOrientation));
     }
 
     public void setPower(double Motor0, double Motor1, double Motor2, double Motor3) {
@@ -70,7 +70,7 @@ public class DrivingMethods {
         bR.setPower(Motor2);
         bL.setPower(Motor3);
     }
-
+    /*
     public void FieldCentric(double lx, double ly, double rx, double speed, boolean IMUReset, double strafeFix, Telemetry telemetry) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), rx (right_stick_x), and IMUReset (options button)
 
@@ -89,12 +89,12 @@ public class DrivingMethods {
         double rotX = lx * Math.cos(botHeading) - ly * Math.sin(botHeading) * 1.1;
         double rotY = lx * Math.sin(botHeading) + ly * Math.cos(botHeading);
 
-        /*
+
         telemetry.addData("lx",lx);
         telemetry.addData("ly",ly);
         telemetry.addData("rotX",rotX);
         telemetry.addData("rotY",rotY);
-        telemetry.addData("rot",-botHeading); */
+        telemetry.addData("rot",-botHeading);
 
 
 
@@ -108,7 +108,7 @@ public class DrivingMethods {
 
         // Uses these power varibles to call the setPower method which will set the power of each motor
         setPower(power0, power1, power2, power3);
-    }
+    }*/
 
     public void RobotCentric(double lx,double ly, double rx, double speed) {
         // Function will pass in lx (left_stick_x), ly (left_stick_y), and rx (right_stick_x)

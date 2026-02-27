@@ -11,7 +11,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
+import org.firstinspires.ftc.teamcode.Methods.PinpointMethods;
 import org.firstinspires.ftc.teamcode.Methods.ShooterMethods;
+import org.firstinspires.ftc.teamcode.Methods.TiltMethods;
 import org.firstinspires.ftc.teamcode.Methods.TransferMethods;
 import org.firstinspires.ftc.teamcode.Methods.VisionMethods;
 
@@ -29,6 +31,8 @@ public class MainTeleOp extends OpMode {
     TransferMethods.DetectedColor detectedColor;
     LEDMethods LED = new LEDMethods();
     VisionMethods Vision = new VisionMethods();
+    TiltMethods Tilt = new TiltMethods();
+    PinpointMethods PinPoint = new PinpointMethods();
 
     //Control variables:
     //These contain controller inputs
@@ -41,6 +45,9 @@ public class MainTeleOp extends OpMode {
     boolean ctrlStopShootMotor;
     boolean ctrlStartShootMotorS;
     boolean ctrlStartShootMotorL;
+    boolean ctrlTiltOn;
+    boolean ctrlTiltOff;
+    boolean ctrlLocalize;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -57,8 +64,10 @@ public class MainTeleOp extends OpMode {
     boolean ctrlAutoAimToggle;
     boolean autoAimToggle;
     boolean autoAim = false;
-    double correctionValue;
+    double aimValue;
     double lightVal = 0;
+    boolean localizeToggle;
+    //boolean tiltOn = false;
 
     // PIDF:
     public double highShooterVelocity = 1620;
@@ -90,6 +99,8 @@ public class MainTeleOp extends OpMode {
         Shooter.init(hardwareMap);
         LED.init(hardwareMap);
         Vision.init(hardwareMap);
+        Tilt.init(hardwareMap);
+        PinPoint.init(hardwareMap);
 
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
@@ -108,6 +119,7 @@ public class MainTeleOp extends OpMode {
         shoot();
         intake_Transfer();
         robotCentricDrive();
+        tilt();
     }
 
     public void performanceTracking() {
@@ -137,26 +149,23 @@ public class MainTeleOp extends OpMode {
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
+        ctrlLocalize = gamepad1.y;
+
+        ctrlTiltOn = gamepad1.left_bumper;
+        ctrlTiltOff = gamepad1.right_bumper;
         runtime = getRuntime();
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
+        Tilt.tiltPos = Tilt.tiltMotor.getCurrentPosition();
     }
-
-    /*
-    public void fieldCentricDrive() {
-        Drive.FieldCentric(ctrlLX, ctrlLY, ctrlRX, 1-ctrlRTrig, ctrlHome, strafeFix, telemetry);
-    }
-    */
 
     public void robotCentricDrive() {
-        
-        if (ctrlTeamSelectLeft) {
-            teamColor = 0;
-        } else if (ctrlTeamSelectRight) {
-            teamColor = 1;
+        if(ctrlLocalize) {
+            Vision.reLocalize();
         }
-        if (teamColor == 1) {telemetry.addLine("Current team: Red");}
-        else {telemetry.addLine("Current team: Blue");}
+        Vision.getPose(PinPoint, telemetry);
+        
+        teamSelect();
 
         if (ctrlAutoAimToggle & autoAimToggle) {
             autoAimToggle = false;
@@ -164,19 +173,36 @@ public class MainTeleOp extends OpMode {
         } else if (!ctrlAutoAimToggle) {
             autoAimToggle = true;
         }
-        correctionValue = Vision.aim(teamColor, telemetry);
 
-        if (autoAim & !(correctionValue == 2)) {
-            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -correctionValue, 1 - ctrlRTrig);
+        aimValue = Vision.aim(telemetry);
+        telemetry.addData("CV", aimValue);
+
+        if (autoAim) {
+            LED.redToGreen(1);
+            Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, aimValue, 1 - ctrlRTrig);
         } else {
+            LED.redToGreen(0);
             Drive.RobotCentric(ctrlLX * strafeFix, ctrlLY, -ctrlRX, 1-ctrlRTrig);
         }
 
+        
         if (autoAim) {
             LED.redToGreen(1);
         } else {
             LED.redToGreen(0);
         }
+    }
+
+    public void teamSelect() {
+        if (ctrlTeamSelectLeft) {
+            teamColor = 0;
+            Vision.setTeam(0);
+        } else if (ctrlTeamSelectRight) {
+            teamColor = 1;
+            Vision.setTeam(1);
+        }
+        if (teamColor == 1) {telemetry.addLine("Current team: Red");}
+        else {telemetry.addLine("Current team: Blue");}
     }
 
     public void intake_Transfer() {
@@ -221,12 +247,12 @@ public class MainTeleOp extends OpMode {
             Transfer.spoonPos(0.84); //spoon up
         }
 
-        if ((spoontime > 0.15) & (spoonPhase == 1)) {
+        if ((spoontime > 0.25) & (spoonPhase == 1)) {
             Transfer.spoonPos(0.97); //spoon down
             spoonPhase++;
         }
 
-        if (spoontime > 0.3) {
+        if (spoontime > 0.8) {
             spoonPhase = 0;
         }
 
@@ -256,5 +282,16 @@ public class MainTeleOp extends OpMode {
         // PIDF Telemetry:
         telemetry.addData("Target Speed: ", curveTargetVelocity);
         telemetry.addData("Error: ", "%.2f", error);
+    }
+
+    public void tilt() {
+        if (ctrlTiltOn) {
+            Tilt.liftToPos(-2000);
+        }
+        if (ctrlTiltOff) {
+            Tilt.liftToPos(0);
+        }
+
+        telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
     }
 }
