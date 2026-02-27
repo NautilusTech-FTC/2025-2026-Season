@@ -62,6 +62,7 @@ public class MainTeleOp extends OpMode {
 
     // PIDF:
     public double highShooterVelocity = 1620;
+    public double lowShooterVelocity = 1350;
     double curveTargetVelocity = highShooterVelocity;
     public double P = 293;
     public double I = 0;
@@ -131,8 +132,8 @@ public class MainTeleOp extends OpMode {
         ctrlUnTransSpinner = gamepad2.right_bumper; //Eject intake
         ctrlSpoon = gamepad2.y; //Spin shooter and move holy spoon (shoots)
         ctrlStopShootMotor = gamepad2.b; //Stop shooter spinning
-        ctrlStartShootMotorS = gamepad2.x; // Short range motor
-        ctrlStartShootMotorL = gamepad2.a; // Long range motor
+        ctrlStartShootMotorS = gamepad2.a; // Short range motor
+        ctrlStartShootMotorL = gamepad2.x; // Long range motor
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
@@ -230,7 +231,14 @@ public class MainTeleOp extends OpMode {
         }
 
         error = curveTargetVelocity - shooterSpeed;
-        if (ctrlStartShootMotorL || ctrlStartShootMotorS) {
+        if (ctrlStartShootMotorL) {
+            curveTargetVelocity = highShooterVelocity;
+            Shooter.motorVelocity(curveTargetVelocity);
+            shooterEnable = true;
+        }
+
+        if (ctrlStartShootMotorS) {
+            curveTargetVelocity = lowShooterVelocity;
             Shooter.motorVelocity(curveTargetVelocity);
             shooterEnable = true;
         }
