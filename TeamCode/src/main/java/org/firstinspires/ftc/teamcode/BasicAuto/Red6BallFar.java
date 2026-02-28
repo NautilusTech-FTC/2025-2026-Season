@@ -28,8 +28,8 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 @Config
 public class Red6BallFar extends LinearOpMode {
     public static double shootAngle = 2.75;
-    public static double x1 = 41;
-    public static double y1 = 64;
+    public static double x1 = 38;
+    public static double y1 = 70;
 
     public void runOpMode () {
         Pose2d initialPose = new Pose2d(68, 12, Math.PI);

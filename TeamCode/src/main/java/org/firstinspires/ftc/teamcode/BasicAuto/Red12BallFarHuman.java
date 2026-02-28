@@ -51,22 +51,22 @@ public class Red12BallFarHuman extends LinearOpMode {
                 .setTangent(shootAngle)
                 .splineToSplineHeading(new Pose2d(x1, 34, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .lineToY(y1, new TranslationalVelConstraint(75.0))
-                .setTangent(-Math.PI/2)
+                .setTangent(-1.8)
                 .splineToLinearHeading(new Pose2d(55, 12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75));
 
         TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
                 .setTangent(0)
                 .splineToSplineHeading(new Pose2d(stealX, 25, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .setTangent(Math.PI/2)
-                .lineToY(67, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+                .lineToY(68, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
         TrajectoryActionBuilder hpExtra2nd = hpExtra.endTrajectory().fresh()
                 .setTangent(-1.8)
-                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75));
+                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75), new ProfileAccelConstraint(-75, 75));
 
 
         TrajectoryActionBuilder home = aim.endTrajectory().fresh()
-                .setTangent(-Math.PI/2)
+                .setTangent(Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
 
@@ -109,6 +109,11 @@ public class Red12BallFarHuman extends LinearOpMode {
                         hpExtra.build(),
                         intake.spinOut(),
                         hpExtra2nd.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
                         //End auto
                         shoot.shooterOff(),
                         home.build()
