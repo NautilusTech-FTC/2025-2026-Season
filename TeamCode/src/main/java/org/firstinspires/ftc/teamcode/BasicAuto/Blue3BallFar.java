@@ -30,7 +30,7 @@ public class Blue3BallFar extends LinearOpMode {
     public static double shootAngle = 3.575;
 
     public void runOpMode () {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, -12, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         AutoMethods.Shoot shoot = new AutoMethods.Shoot(hardwareMap);
         AutoMethods.Intake intake = new AutoMethods.Intake(hardwareMap);
@@ -38,7 +38,7 @@ public class Blue3BallFar extends LinearOpMode {
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI)
-                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle);
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
         TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)

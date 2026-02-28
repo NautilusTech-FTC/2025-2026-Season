@@ -34,10 +34,10 @@ import java.util.Arrays;
 public class Blue6BallFar extends LinearOpMode {
     public static double shootAngle = 3.575;
     public static double x1 = 41;
-    public static double y1 = -64;
+    public static double y1 = -59;
 
     public void runOpMode () {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, -12, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         AutoMethods.Shoot shoot = new AutoMethods.Shoot(hardwareMap);
         AutoMethods.Intake intake = new AutoMethods.Intake(hardwareMap);
@@ -45,14 +45,14 @@ public class Blue6BallFar extends LinearOpMode {
 
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI)
-                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle);
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
         TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
                 .setTangent(shootAngle)
                 .splineToSplineHeading(new Pose2d(x1, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .lineToY(y1, new TranslationalVelConstraint(25.0))
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
         TrajectoryActionBuilder home = row1.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)

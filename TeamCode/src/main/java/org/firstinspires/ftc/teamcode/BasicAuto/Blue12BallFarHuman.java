@@ -8,20 +8,23 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name="BLUE 9 Ball Far", group="9 Ball Autos")
+@Autonomous(name="BLUE 12 Ball Far HUMAN PLAYER", group="12 Ball Autos")
 @Config
-public class Blue9BallFar extends LinearOpMode {
+public class Blue12BallFarHuman extends LinearOpMode {
     public static double shootAngle = 3.575;
     public static double x1 = 41;
-    public static double x2 = 19;
-    public static double y1 = -59;
-    public static double y2 = -59;
+    public static double y1 = -57;
+    public static double arriveY = -53.5;
+    public static double arriveTan = -1.35;
+    public static double flickTan = -1.74;
+
 
 
     public void runOpMode () {
@@ -35,21 +38,35 @@ public class Blue9BallFar extends LinearOpMode {
                 .setTangent(Math.PI)
                 .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
+        TrajectoryActionBuilder hp3 = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(68, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(-Math.PI/2)
+                .splineTo(new Vector2d(69, arriveY), arriveTan, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .turnTo(flickTan)
+                .splineTo(new Vector2d(68, -58), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(Math.PI/2)
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), Math.PI/2, new TranslationalVelConstraint(75));
+
         TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
                 .setTangent(shootAngle)
                 .splineToSplineHeading(new Pose2d(x1, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y1, new TranslationalVelConstraint(25.0))
+                .lineToY(y1, new TranslationalVelConstraint(75.0))
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75));
 
-        TrajectoryActionBuilder row2 = row1.endTrajectory().fresh()
-                .setTangent(Math.PI) //Start 9 ball test
-                .splineToSplineHeading(new Pose2d(x2, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y2, new TranslationalVelConstraint(25.0))
+        TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(68, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-50, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+
+        TrajectoryActionBuilder hpExtra2nd = hpExtra.endTrajectory().fresh()
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(40));
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), Math.PI/2, new TranslationalVelConstraint(75));
 
-        TrajectoryActionBuilder home = row2.endTrajectory().fresh()
+
+        TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
@@ -68,14 +85,13 @@ public class Blue9BallFar extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 aim.build()
                         ),
-                        new SleepAction(1),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
                         //Pickup row 1 & shoot
                         intake.spinIn(),
                         intake.transSpinIn(),
-                        row1.build(),
+                        hp3.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
                         combined.shoot1(),
@@ -84,7 +100,17 @@ public class Blue9BallFar extends LinearOpMode {
                         //Pickup row 2 & shoot
                         intake.transSpinIn(),
                         intake.spinIn(),
-                        row2.build(),
+                        row1.build(),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        hpExtra.build(),
+                        intake.spinOut(),
+                        hpExtra2nd.build(),
                         intake.transSpinStop(),
                         intake.spinStop(),
                         combined.shoot1(),
