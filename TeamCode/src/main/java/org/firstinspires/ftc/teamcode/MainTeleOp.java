@@ -50,10 +50,6 @@ public class MainTeleOp extends OpMode {
     boolean ctrlTiltOff;
     boolean ctrlLocalize;
     boolean ctrlAutoPark;
-    boolean ctrlRight45;
-    boolean ctrlLeft45;
-    double autoParkAngle;
-    boolean autoParkToggle = false;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -67,13 +63,12 @@ public class MainTeleOp extends OpMode {
     int teamColor = 0;
     boolean ctrlTeamSelectLeft = false;
     boolean ctrlTeamSelectRight = false;
-    boolean ctrlAutoAimToggle;
+    boolean ctrlAutoAim;
     boolean autoAimToggle;
     boolean autoAim = false;
     double aimValue;
     double lightVal = 0;
     boolean localizeToggle;
-    //boolean tiltOn = false;
 
     // PIDF:
     public double highShooterVelocity = 1620;
@@ -120,13 +115,13 @@ public class MainTeleOp extends OpMode {
     }
 
     public void loop() {
+        telemetry.addData("fern", "");
         performanceTracking();
         senseVars();
         shoot();
         intake_Transfer();
         robotCentricDrive();
         tilt();
-        autopark();
     }
 
     public void performanceTracking() {
@@ -155,11 +150,9 @@ public class MainTeleOp extends OpMode {
         ctrlStartShootMotorL = gamepad2.x; // Long range motor
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
-        ctrlAutoAimToggle = gamepad1.a;
+        ctrlAutoAim = gamepad1.a;
         ctrlLocalize = gamepad1.dpad_up;
-        ctrlAutoPark = gamepad1.yWasPressed();
-        ctrlLeft45 = gamepad1.xWasPressed();
-        ctrlRight45 = gamepad1.bWasPressed();
+        ctrlAutoPark = gamepad1.y;
 
         ctrlTiltOn = gamepad1.left_bumper;
         ctrlTiltOff = gamepad1.right_bumper;
@@ -167,7 +160,6 @@ public class MainTeleOp extends OpMode {
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
         Tilt.tiltPos = Tilt.tiltMotor.getCurrentPosition();
-
 
     }
 
@@ -178,20 +170,15 @@ public class MainTeleOp extends OpMode {
         Vision.getPose(PinPoint, telemetry);
         
         teamSelect();
-        autopark();
 
-        if (ctrlAutoAimToggle & autoAimToggle) {
+        if (ctrlAutoAim & autoAimToggle) {
             autoAimToggle = false;
             autoAim = !autoAim;
-        } else if (!ctrlAutoAimToggle) {
+        } else if (!ctrlAutoAim) {
             autoAimToggle = true;
         }
 
         aimValue = Vision.aim(telemetry);
-
-        if(autoParkToggle) {
-            aimValue = Vision.setAngle(autoParkAngle, telemetry);
-        }
 
         if (autoAim) {
             LED.redToGreen(1);
@@ -309,20 +296,5 @@ public class MainTeleOp extends OpMode {
         }
 
         telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
-    }
-
-    public void autopark() {
-        if (ctrlAutoPark){
-            autoParkToggle = !autoParkToggle;
-            if (autoParkToggle) {
-                autoParkAngle = (Math.PI/4)*Math.round(PinPoint.pose().getHeading(AngleUnit.RADIANS)*4/Math.PI);
-            }
-        }
-        if (ctrlRight45) {
-            autoParkAngle -= Math.PI/4;
-        }
-        if (ctrlLeft45) {
-            autoParkAngle += Math.PI/4;
-        }
     }
 }
