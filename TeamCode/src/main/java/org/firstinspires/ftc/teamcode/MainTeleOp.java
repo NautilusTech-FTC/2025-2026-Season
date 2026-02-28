@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Methods.DrivingMethods;
 import org.firstinspires.ftc.teamcode.Methods.IntakeMethods;
 import org.firstinspires.ftc.teamcode.Methods.LEDMethods;
@@ -48,6 +49,11 @@ public class MainTeleOp extends OpMode {
     boolean ctrlTiltOn;
     boolean ctrlTiltOff;
     boolean ctrlLocalize;
+    boolean ctrlAutoPark;
+    boolean ctrlRight45;
+    boolean ctrlLeft45;
+    double autoParkAngle;
+    boolean autoParkToggle = false;
 
     //Shooter timing variables:
     double spoonRunTime;
@@ -120,6 +126,7 @@ public class MainTeleOp extends OpMode {
         intake_Transfer();
         robotCentricDrive();
         tilt();
+        autopark();
     }
 
     public void performanceTracking() {
@@ -149,7 +156,10 @@ public class MainTeleOp extends OpMode {
         ctrlTeamSelectLeft = gamepad1.dpad_left;
         ctrlTeamSelectRight = gamepad1.dpad_right;
         ctrlAutoAimToggle = gamepad1.a;
-        ctrlLocalize = gamepad1.y;
+        ctrlLocalize = gamepad1.dpad_up;
+        ctrlAutoPark = gamepad1.yWasPressed();
+        ctrlLeft45 = gamepad1.xWasPressed();
+        ctrlRight45 = gamepad1.bWasPressed();
 
         ctrlTiltOn = gamepad1.left_bumper;
         ctrlTiltOff = gamepad1.right_bumper;
@@ -157,6 +167,8 @@ public class MainTeleOp extends OpMode {
         Shooter.position = Shooter.shooterMotor.getCurrentPosition();
         Shooter.velocity = Shooter.shooterMotor.getVelocity();
         Tilt.tiltPos = Tilt.tiltMotor.getCurrentPosition();
+
+
     }
 
     public void robotCentricDrive() {
@@ -166,6 +178,7 @@ public class MainTeleOp extends OpMode {
         Vision.getPose(PinPoint, telemetry);
         
         teamSelect();
+        autopark();
 
         if (ctrlAutoAimToggle & autoAimToggle) {
             autoAimToggle = false;
@@ -175,7 +188,10 @@ public class MainTeleOp extends OpMode {
         }
 
         aimValue = Vision.aim(telemetry);
-        telemetry.addData("CV", aimValue);
+
+        if(autoParkToggle) {
+            aimValue = Vision.setAngle(autoParkAngle, telemetry);
+        }
 
         if (autoAim) {
             LED.redToGreen(1);
@@ -293,5 +309,20 @@ public class MainTeleOp extends OpMode {
         }
 
         telemetry.addData("Tilt Pos: ", Tilt.tiltPos);
+    }
+
+    public void autopark() {
+        if (ctrlAutoPark){
+            autoParkToggle = !autoParkToggle;
+            if (autoParkToggle) {
+                autoParkAngle = (Math.PI/4)*Math.round(PinPoint.pose().getHeading(AngleUnit.RADIANS)*4/Math.PI);
+            }
+        }
+        if (ctrlRight45) {
+            autoParkAngle -= Math.PI/4;
+        }
+        if (ctrlLeft45) {
+            autoParkAngle += Math.PI/4;
+        }
     }
 }
