@@ -1,0 +1,113 @@
+package org.firstinspires.ftc.teamcode.BasicAuto;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
+@Autonomous(name="RED 6 Ball Far HUMAN PLAYER x2", group="6 Ball Autos")
+@Config
+public class Red6BallFarHumanTwice extends LinearOpMode {
+    public static double shootAngle = 2.75;
+    public static double x1 = 38;
+    public static double y1 = 70;
+    public static double arriveY = 70;
+    public static double arriveTan = 1.3;
+    public static double flickTan = 1.7;
+    public static double stealX = 63.5;
+
+    public void runOpMode () {
+        Pose2d initialPose = new Pose2d(69, 12, Math.PI);
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+        AutoMethods.Shoot shoot = new AutoMethods.Shoot(hardwareMap);
+        AutoMethods.Intake intake = new AutoMethods.Intake(hardwareMap);
+        AutoMethods.Combined combined = new AutoMethods.Combined(hardwareMap);
+
+        TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
+                .setTangent(Math.PI)
+                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), shootAngle, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
+
+        TrajectoryActionBuilder hp3 = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(stealX, 25, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(Math.PI/2)
+                .splineTo(new Vector2d(stealX+1, arriveY), arriveTan, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .turnTo(flickTan)
+                .splineTo(new Vector2d(stealX, arriveY+3.5), Math.PI/2)
+                .setTangent(-1.8)
+                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75));
+
+        TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(stealX, 25, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(Math.PI/2)
+                .lineToY(70, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+        TrajectoryActionBuilder hpExtra2nd = hpExtra.endTrajectory().fresh()
+                .setTangent(-1.8)
+                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75), new ProfileAccelConstraint(-75, 75));
+
+
+        TrajectoryActionBuilder home = aim.endTrajectory().fresh()
+                .setTangent(Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+
+
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        Actions.runBlocking(
+                new SequentialAction(
+                        //Shoot first three
+                        new ParallelAction(
+                                shoot.shooterOn(1575),
+                                shoot.holySpoonDown(),
+                                aim.build()
+                        ),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup human & shoot
+                        intake.spinIn(),
+                        intake.transSpinIn(),
+                        hp3.build(),
+                        intake.spinStop(),
+                        intake.transSpinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //Pickup humanx2 & shoot
+                        intake.transSpinIn(),
+                        intake.spinIn(),
+                        hpExtra.build(),
+                        new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(.5),
+                                        intake.spinOut()
+                                ),
+                                hpExtra2nd.build()
+                        ),
+                        intake.transSpinStop(),
+                        intake.spinStop(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        combined.shoot1(),
+                        //End auto
+                        shoot.shooterOff(),
+                        home.build()
+                )
+        );
+    }
+}
