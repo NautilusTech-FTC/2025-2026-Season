@@ -107,8 +107,13 @@ public class Red12BallFarHuman extends LinearOpMode {
                         intake.transSpinIn(),
                         intake.spinIn(),
                         hpExtra.build(),
-                        intake.spinOut(),
-                        hpExtra2nd.build(),
+                        new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(.5),
+                                        intake.spinOut()
+                                ),
+                                hpExtra2nd.build()
+                        ),
                         intake.transSpinStop(),
                         intake.spinStop(),
                         combined.shoot1(),

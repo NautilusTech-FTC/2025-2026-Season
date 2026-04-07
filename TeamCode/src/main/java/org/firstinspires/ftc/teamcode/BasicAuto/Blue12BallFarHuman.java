@@ -57,7 +57,7 @@ public class Blue12BallFarHuman extends LinearOpMode {
 
         TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToSplineHeading(new Pose2d(68, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .splineToSplineHeading(new Pose2d(70, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .lineToY(-50, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
 
@@ -109,8 +109,13 @@ public class Blue12BallFarHuman extends LinearOpMode {
                         intake.transSpinIn(),
                         intake.spinIn(),
                         hpExtra.build(),
-                        intake.spinOut(),
-                        hpExtra2nd.build(),
+                        new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(.5),
+                                        intake.spinOut()
+                                ),
+                                hpExtra2nd.build()
+                        ),
                         intake.transSpinStop(),
                         intake.spinStop(),
                         combined.shoot1(),

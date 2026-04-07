@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Autonomous(name="RED 6 Ball Far HUMAN PLAYER x2", group="6 Ball Autos")
 @Config
-public class Red6BallFarHumanTwice extends LinearOpMode {
+public class Red9BallFarHumanTwice extends LinearOpMode {
     public static double shootAngle = 2.75;
     public static double x1 = 38;
     public static double y1 = 70;
