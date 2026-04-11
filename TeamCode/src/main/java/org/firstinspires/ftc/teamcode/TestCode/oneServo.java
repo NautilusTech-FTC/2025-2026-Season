@@ -9,12 +9,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Disabled
 public class oneServo extends OpMode {
     Servo spoonServo;
+
     public void init() {
         spoonServo = hardwareMap.get(Servo.class, "SpoonServo");
         spoonServo.setPosition(1);
     }
 
+    @Override
     public void loop() {
 
     }
+
+
 }

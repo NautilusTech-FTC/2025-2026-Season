@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode.BasicAuto;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
@@ -14,64 +9,57 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-
-@Autonomous(name="BLUE 12 Ball Far", group="12 Ball Autos")
+@Autonomous(name="BLUE 6 Ball Far HUMAN PLAYER x3", group="6 Ball Autos")
 @Config
-@Disabled
-public class Blue12BallFar extends LinearOpMode {
+public class Blue12BallFarHumanThrice extends LinearOpMode {
     public static double shootAngle = 3.575;
-    public static double x1 = 42;
-    public static double x2 = 10;
-    public static double x3 = -12;
-    public static double y1 = -64;
-    public static double y2 = -55;
-    public static double y3 = -55;
+    public static double x1 = 41;
+    public static double y1 = -57;
+    public static double arriveY = -53.5;
+    public static double arriveTan = -1.35;
+    public static double flickTan = -1.74;
+
+
 
     public void runOpMode () {
-        Pose2d initialPose = new Pose2d(62, -15, Math.PI);
+        Pose2d initialPose = new Pose2d(62, -12, Math.PI);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         AutoMethods.Shoot shoot = new AutoMethods.Shoot(hardwareMap);
         AutoMethods.Intake intake = new AutoMethods.Intake(hardwareMap);
         AutoMethods.Combined combined = new AutoMethods.Combined(hardwareMap);
 
-
         TrajectoryActionBuilder aim = drive.actionBuilder(initialPose)
                 .setTangent(Math.PI)
-                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle);
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
-        TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
-                .setTangent(shootAngle)
-                .splineTo(new Vector2d(x1, y1), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+        TrajectoryActionBuilder hp3 = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(68, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .setTangent(-Math.PI/2)
+                .splineTo(new Vector2d(69, arriveY), arriveTan, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .turnTo(flickTan)
+                .splineTo(new Vector2d(68, -58), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -15, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), Math.PI/2, new TranslationalVelConstraint(75));
 
-        TrajectoryActionBuilder row2 = aim.endTrajectory().fresh()
-                .setTangent(Math.PI) //Start 9 ball test
-                .splineToSplineHeading(new Pose2d(x2, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y2)
+        TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
+                .setTangent(0)
+                .splineToSplineHeading(new Pose2d(71, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .lineToY(-50, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+
+
+        TrajectoryActionBuilder hpExtra2nd = hpExtra.endTrajectory().fresh()
                 .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), Math.PI/2, new TranslationalVelConstraint(75));
 
-        TrajectoryActionBuilder row3 = aim.endTrajectory().fresh()
-                .setTangent(shootAngle) //Start 12 ball test!!!!!
-                .splineTo(new Vector2d(x3, y3), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .setTangent(Math.PI/2)
-                .splineTo(new Vector2d(55, -15), shootAngle-Math.PI, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75)); //End 12 ball test!!!!!!!
 
-        TrajectoryActionBuilder home = row1.endTrajectory().fresh()
+        TrajectoryActionBuilder home = aim.endTrajectory().fresh()
                 .setTangent(-Math.PI/2)
                 .splineToLinearHeading(new Pose2d(60, -35, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
@@ -96,7 +84,7 @@ public class Blue12BallFar extends LinearOpMode {
                         //Pickup row 1 & shoot
                         intake.spinIn(),
                         intake.transSpinIn(),
-                        row1.build(),
+                        hp3.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
                         combined.shoot1(),
@@ -105,16 +93,30 @@ public class Blue12BallFar extends LinearOpMode {
                         //Pickup row 2 & shoot
                         intake.transSpinIn(),
                         intake.spinIn(),
-                        row2.build(),
+                        hpExtra.build(),
+                        new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(.5),
+                                        intake.spinOut()
+                                ),
+                                hpExtra2nd.build()
+                        ),
                         intake.transSpinStop(),
                         intake.spinStop(),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
-                        //Pickup row 3 & shoot
+                        //humanx3
                         intake.transSpinIn(),
                         intake.spinIn(),
-                        row3.build(),
+                        hpExtra.build(),
+                        new ParallelAction(
+                                new SequentialAction(
+                                        new SleepAction(.5),
+                                        intake.spinOut()
+                                ),
+                                hpExtra2nd.build()
+                        ),
                         intake.transSpinStop(),
                         intake.spinStop(),
                         combined.shoot1(),

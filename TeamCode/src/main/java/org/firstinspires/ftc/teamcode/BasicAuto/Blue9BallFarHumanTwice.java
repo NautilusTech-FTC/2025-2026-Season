@@ -15,9 +15,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name="BLUE 12 Ball Far HUMAN PLAYER", group="12 Ball Autos")
+@Autonomous(name="BLUE 6 Ball Far HUMAN PLAYER x2", group="6 Ball Autos")
 @Config
-public class Blue12BallFarHuman extends LinearOpMode {
+public class Blue9BallFarHumanTwice extends LinearOpMode {
     public static double shootAngle = 3.575;
     public static double x1 = 41;
     public static double y1 = -57;
@@ -48,16 +48,9 @@ public class Blue12BallFarHuman extends LinearOpMode {
                 .setTangent(Math.PI/2)
                 .splineToLinearHeading(new Pose2d(55, -12, shootAngle), Math.PI/2, new TranslationalVelConstraint(75));
 
-        TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
-                .setTangent(shootAngle)
-                .splineToSplineHeading(new Pose2d(x1, -34, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y1, new TranslationalVelConstraint(75.0))
-                .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(55, -12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75));
-
         TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToSplineHeading(new Pose2d(70, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
+                .splineToSplineHeading(new Pose2d(71, -25, -Math.PI/2), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
                 .lineToY(-50, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
 
 
@@ -98,14 +91,6 @@ public class Blue12BallFarHuman extends LinearOpMode {
                         combined.shoot1(),
                         combined.shoot1(),
                         //Pickup row 2 & shoot
-                        intake.transSpinIn(),
-                        intake.spinIn(),
-                        row1.build(),
-                        intake.transSpinStop(),
-                        intake.spinStop(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        combined.shoot1(),
                         intake.transSpinIn(),
                         intake.spinIn(),
                         hpExtra.build(),

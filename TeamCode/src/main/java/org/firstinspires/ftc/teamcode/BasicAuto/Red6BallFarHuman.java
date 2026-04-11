@@ -15,12 +15,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
-@Autonomous(name="RED 12 Ball Far HUMAN PLAYER", group="12 Ball Autos")
+@Autonomous(name="RED 6 Ball Far HUMAN PLAYER", group="6 Ball Autos")
 @Config
-public class Red12BallFarHuman extends LinearOpMode {
+public class Red6BallFarHuman extends LinearOpMode {
     public static double shootAngle = 2.75;
-    public static double x1 = 38;
-    public static double y1 = 70;
     public static double arriveY = 70;
     public static double arriveTan = 1.3;
     public static double flickTan = 1.7;
@@ -45,29 +43,11 @@ public class Red12BallFarHuman extends LinearOpMode {
                 .turnTo(flickTan)
                 .splineTo(new Vector2d(stealX, arriveY+3.5), Math.PI/2)
                 .setTangent(-1.8)
-                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75));
-
-        TrajectoryActionBuilder row1 = aim.endTrajectory().fresh()
-                .setTangent(shootAngle)
-                .splineToSplineHeading(new Pose2d(x1, 34, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .lineToY(y1, new TranslationalVelConstraint(75.0))
-                .setTangent(-1.8)
-                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), shootAngle-Math.PI, new TranslationalVelConstraint(75));
-
-        TrajectoryActionBuilder hpExtra = aim.endTrajectory().fresh()
-                .setTangent(0)
-                .splineToSplineHeading(new Pose2d(stealX, 25, Math.PI/2), Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75))
-                .setTangent(Math.PI/2)
-                .lineToY(68, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
-
-        TrajectoryActionBuilder hpExtra2nd = hpExtra.endTrajectory().fresh()
-                .setTangent(-1.8)
-                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(75), new ProfileAccelConstraint(-75, 75));
-
+                .splineToLinearHeading(new Pose2d(55, 12, shootAngle), -Math.PI/2, new TranslationalVelConstraint(40), new ProfileAccelConstraint(-50, 50));
 
         TrajectoryActionBuilder home = aim.endTrajectory().fresh()
-                .setTangent(Math.PI/2)
-                .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2, new TranslationalVelConstraint(75.0), new ProfileAccelConstraint(-75, 75));
+                .setTangent(-Math.PI/2)
+                .splineToLinearHeading(new Pose2d(60, 36, Math.PI), -Math.PI/2);
 
 
 
@@ -83,6 +63,7 @@ public class Red12BallFarHuman extends LinearOpMode {
                                 shoot.holySpoonDown(),
                                 aim.build()
                         ),
+                        new SleepAction(1),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
@@ -92,30 +73,6 @@ public class Red12BallFarHuman extends LinearOpMode {
                         hp3.build(),
                         intake.spinStop(),
                         intake.transSpinStop(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        //Pickup row 2 & shoot
-                        intake.transSpinIn(),
-                        intake.spinIn(),
-                        row1.build(),
-                        intake.transSpinStop(),
-                        intake.spinStop(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        combined.shoot1(),
-                        intake.transSpinIn(),
-                        intake.spinIn(),
-                        hpExtra.build(),
-                        new ParallelAction(
-                                new SequentialAction(
-                                        new SleepAction(.5),
-                                        intake.spinOut()
-                                ),
-                                hpExtra2nd.build()
-                        ),
-                        intake.transSpinStop(),
-                        intake.spinStop(),
                         combined.shoot1(),
                         combined.shoot1(),
                         combined.shoot1(),
